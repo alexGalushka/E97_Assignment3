@@ -25,6 +25,12 @@ public class Rate
 		this.rate = rate;
 	}
 	
+	public Rate()
+	{
+		this.period = "";
+		this.rate = (float) 0.0;
+	}
+
 	/**
 	 * mutator method for period attribute.
 	 *

@@ -42,6 +42,8 @@ public class OfficeSpace
 	/** The name. */
 	private String name; 
 	
+	private String providerId;
+	
 	/**
 	 * Instantiates a new office space.
 	 *
@@ -88,6 +90,25 @@ public class OfficeSpace
 		this.officeSpaceGuid = "";
 		this.rates =  new ArrayList<Rate>();
 		this.ratings = new HashMap<String, Rating>();
+	}
+	
+	/**
+	 * accessor method
+	 * @return the providerId
+	 */
+	public String getProviderId()
+	{
+		return providerId;
+	}
+
+
+	/**
+	 * mutator method
+	 * @param providerId the providerId to set
+	 */
+	public void setProviderId(String providerId)
+	{
+		this.providerId = providerId;
 	}
 	
 	/**
@@ -247,7 +268,7 @@ public class OfficeSpace
 	 *
 	 * @return List<Rate>
 	 */
-	public List<Rate> geRates()
+	public List<Rate> getRates()
 	{
 		return this.rates;
 	}
@@ -338,7 +359,7 @@ public class OfficeSpace
 	 *
 	 * @return String
 	 */
-	public String geName()
+	public String getName()
 	{
 		return name;
 	}

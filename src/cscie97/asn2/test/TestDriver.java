@@ -28,6 +28,7 @@ import cscie97.asn2.squaredesk.provider.Rate;
 import cscie97.asn2.squaredesk.provider.Rating;
 import cscie97.asn2.squaredesk.provider.RatingAlreadyExistsException;
 import cscie97.asn2.squaredesk.provider.User;
+import cscie97.asn3.squaredesk.renter.SchedulingService;
 
 
 /**
@@ -70,7 +71,9 @@ public class TestDriver
 		Rating uutRating1;
 		Rating uutRating2;
 		
-
+		@SuppressWarnings("unused")
+		SchedulingService schs = new SchedulingService() ; 
+		
         // * Data to Office Space * //
 			
 		String countryCode = "USA";//subject to change to ISO if time permits
@@ -242,7 +245,7 @@ public class TestDriver
 			    System.out.println ( printOutMsg );
 			    
 			    //TEST 2: What rate is cheaper if renter decides to rent office for 3 days knowing the fact that only 2 rates (weekly and daily) available?
-			    rateList = o.geRates();
+			    rateList = o.getRates();
 			    Float weeklyRate = (float) 0;
 			    Float dailyRate = (float) 0;
 				for ( Rate r : rateList )
