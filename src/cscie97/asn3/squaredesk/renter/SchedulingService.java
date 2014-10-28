@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SchedulingService
 {
@@ -67,21 +68,99 @@ public class SchedulingService
 	
 	
 	
-	public void createBooking ( Booking booking )
+	public void createBooking ( Booking booking ) throws BookingException
 	{
 		
-		//Date tempStartDate = booking.getStartDate();
-		//Date tempEndDate = booking.getEndDate();
-		//booking can only be created if date startDate < endDate
-		// todo: comparison!
+		Date startDate = booking.getStartDate();
+		Date endDate = booking.getEndDate();
+
+		if (startDate.after(endDate))
+		{
+			throw new BookingException ("start date has to be before end date");
+		}
+		
+		if( !checkAvailability( booking ) )
+		{
+			throw new BookingException ("you can't book this office space on the chosen date");
+		}
+		
+		String tempStartDate = sdf.format(startDate);
+		String tempEndDate = sdf.format(endDate);
+		
+		List<String> datesRangeList = getDatesRange ( tempStartDate, tempEndDate ); 
+		for ( String d:datesRangeList )
+		{
+			updateBookingMap ( d, booking );
+		}		
+	}
+	
+	public boolean checkAvailability (Booking booking)
+	{
+		boolean result = true;
 		String tempStartDate = sdf.format(booking.getStartDate());
 		String tempEndDate = sdf.format(booking.getEndDate());
 		
 		List<String> datesRangeList = getDatesRange ( tempStartDate, tempEndDate ); 
+		String receivedOfficeSpaceId = booking.getOfficespace().getOfficeSpaceGuid();
 		
-		
-		
+		List<Booking> tempBookingList; 
+		String bookedOfficeSpaceId;
+		for (String date:datesRangeList)
+		{
+			tempBookingList= bookingMap.get(date);
+			for (Booking b:tempBookingList)
+			{
+				bookedOfficeSpaceId = b.getOfficespace().getOfficeSpaceGuid();
+				if (bookedOfficeSpaceId.equals(receivedOfficeSpaceId))
+				{
+					result =  false;
+				}
+			}
+		}
+		return result;
 	}
+	
+	public void deleteBooking (Booking booking)
+	{
+		Date startDate = booking.getStartDate();
+		Date endDate = booking.getEndDate();
+		
+		String tempStartDate = sdf.format(startDate);
+		String tempEndDate = sdf.format(endDate);
+		
+		List<String> datesRangeList = getDatesRange ( tempStartDate, tempEndDate );
+		
+		List<Booking> tempBookingList;
+		for (String date:datesRangeList)
+		{
+			tempBookingList = bookingMap.get(date);
+			if (tempBookingList.contains(booking))
+			{
+				tempBookingList.remove(booking);
+			}
+			bookingMap.put(date, tempBookingList);
+		}
+	 }
+	
+	
+	private void updateBookingMap ( String date, Booking booking )
+	{
+		List<Booking> tempBookongList;
+		if (bookingMap.containsKey(date))
+		{
+			tempBookongList = bookingMap.get(date);
+			tempBookongList.add(booking);
+		    bookingMap.put(date, tempBookongList);
+		}
+		else
+		{
+			tempBookongList = new LinkedList<Booking>();
+			tempBookongList.add(booking);
+			bookingMap.put(date, tempBookongList);
+		}
+	}
+	
+	
 	
 	private List<String> getDatesRange (String startDate, String endDate)
 	{
@@ -114,24 +193,11 @@ public class SchedulingService
 		return datesList;
 	}
 	
-	public boolean checkAvailability (Booking booking)
+	public Set<Booking> listBookings ()
 	{
-		String tempStartDate = sdf.format(booking.getStartDate());
-		String tempEndDate = sdf.format(booking.getEndDate());
 		
-		List<String> datesRangeList = getDatesRange ( tempStartDate, tempEndDate ); 
+		return null;
 		
-		List<Booking> tempBookingList; 
-		for (String date:datesRangeList)
-		{
-			tempBookingList= bookingMap.get(date);
-			for (Booking b:tempBookingList)
-			{
-				if 
-			}
-		}
-		//Date date = sdf.parse(dateInString);
-		return true;
 	}
 	
     public static Calendar calendarFor(int year, int month, int day) 
