@@ -6,15 +6,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class SchedulingService
 {
+	// the code for defensive programming: checking the date validity
 	/* 
-	 
 	 Calendar cal = Calendar.getInstance();
 	try {
     	cal.setTime(yourDate);
@@ -26,14 +29,16 @@ public class SchedulingService
 	 
 	 */
 	
-	
 	private Map<String, List<Booking>> bookingMap;
 	private SimpleDateFormat sdf;
 	private String date;
 	private String[] dateArray;
 	private Calendar calendar;
-	private int FIX_DAYS = 100;
+	private int FIX_NUM_DAYS = 95;
 	
+	/**
+	 * unparameterized constructor: created a brand new bookingMap with FIX_NUM_DAYS keys
+	 */
 	public SchedulingService()
 	{
 		bookingMap = new HashMap<String,List<Booking>>();
@@ -49,7 +54,7 @@ public class SchedulingService
 		String tempDateAfterRolling;
 		String[] tempDateAfterRollingArr;
 		String checkYear;
-		for ( int increment = 0; increment < FIX_DAYS; increment++ )
+		for ( int increment = 0; increment < FIX_NUM_DAYS; increment++ )
 		{
 			calendar.roll(Calendar.DAY_OF_YEAR, true); 
 			tempDateAfterRolling = sdf.format(calendar.getTime());
@@ -66,8 +71,11 @@ public class SchedulingService
 
 	}
 	
-	
-	
+	/**
+	 * add the new booking to the bookingMap
+	 * @param Booking: booking
+	 * @throws BookingException
+	 */
 	public void createBooking ( Booking booking ) throws BookingException
 	{
 		
@@ -94,6 +102,11 @@ public class SchedulingService
 		}		
 	}
 	
+	/**
+	 * this method check if certain Office Space (OS) is available for rent for "booked dates"
+	 * @param Booking: booking 
+	 * @return true if OS is available and false if not
+	 */
 	public boolean checkAvailability (Booking booking)
 	{
 		boolean result = true;
@@ -120,6 +133,10 @@ public class SchedulingService
 		return result;
 	}
 	
+	/**
+	 * this method deletes specific booking from the bookingMap
+	 * @param booking
+	 */
 	public void deleteBooking (Booking booking)
 	{
 		Date startDate = booking.getStartDate();
@@ -142,7 +159,32 @@ public class SchedulingService
 		}
 	 }
 	
+	/**
+	 * this method list the all unique bookings from available in the Scheduling Service
+	 * @return set of Bookings
+	 */
+	public Set<Booking> listBookings ()
+	{
+		Set<Booking> bookingSet = new HashSet<Booking>();
+		Iterator<Entry<String, List<Booking>>> entries = bookingMap.entrySet().iterator();
+		List<Booking> tempBookingList;
+		while (entries.hasNext()) 
+		{
+		  Entry<String, List<Booking>> thisEntry = entries.next();
+		  tempBookingList = thisEntry.getValue();
+		  for (Booking b: tempBookingList)
+		  {
+			  bookingSet.add(b);
+		  }
+		}
+		return bookingSet;
+	}
 	
+	/**
+	 * this private method updates the bookingMap with a new booking
+	 * @param String: date
+	 * @param Booking: booking
+	 */
 	private void updateBookingMap ( String date, Booking booking )
 	{
 		List<Booking> tempBookongList;
@@ -161,7 +203,12 @@ public class SchedulingService
 	}
 	
 	
-	
+	/**
+	 * this private method converts the start and end dates to the rage of consecutive dates
+	 * @param String: startDate
+	 * @param String: endDate
+	 * @return the list of consecutive dates
+	 */
 	private List<String> getDatesRange (String startDate, String endDate)
 	{
 		List<String> datesList = new LinkedList<String>();
@@ -192,20 +239,5 @@ public class SchedulingService
 		
 		return datesList;
 	}
-	
-	public Set<Booking> listBookings ()
-	{
-		
-		return null;
-		
-	}
-	
-    public static Calendar calendarFor(int year, int month, int day) 
-    {
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, year);
-        cal.set(Calendar.MONTH, month);
-        cal.set(Calendar.DAY_OF_MONTH, day);
-        return cal;
-    }
+
 }
