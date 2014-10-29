@@ -1,6 +1,13 @@
 package cscie97.asn3.squaredesk.renter;
 
-public class Renter
+import java.util.List;
+import java.util.Map;
+
+import cscie97.asn2.squaredesk.provider.OfficeSpace;
+import cscie97.asn2.squaredesk.provider.Profile;
+import cscie97.asn2.squaredesk.provider.Rating;
+
+public class Renter implements Profile
 {
 	public enum Gender {MALE, FEMALE};
 	
@@ -44,6 +51,55 @@ public class Renter
 	 */
 	public void setGender(Gender gender) {
 		this.gender = gender;
+	}
+
+
+	@Override
+	public void setGuid(String guid) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public String getGuid() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void setOfficeSpaces(Map<String, OfficeSpace> officeSpacesMap) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public Map<String, OfficeSpace> getOfficeSpaces() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void setRatingsMap(Map<String, Rating> ratingsMap) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public Map<String, Rating> getRatingsMap() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List<Rating> getAllRatings() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

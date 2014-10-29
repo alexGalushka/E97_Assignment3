@@ -29,6 +29,8 @@ public interface Profile
 	 * @return Map<String, OfficeSpace>
 	 */
 	public Map<String, OfficeSpace> getOfficeSpaces ();
+	
+	public List<OfficeSpace> getOfficeSpacesList();
 
 	/**
 	 * mutator method for providerRatingsMap attribute.

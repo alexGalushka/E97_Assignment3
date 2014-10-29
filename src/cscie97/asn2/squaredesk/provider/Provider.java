@@ -88,6 +88,11 @@ public class Provider implements Profile
 		return this.officeSpacesMap;
 	}
 
+	
+	public List<OfficeSpace> getOfficeSpacesList()
+	{
+		return (List<OfficeSpace>) this.officeSpacesMap.values();
+	}
 	/**
 	 * mutator method for ratingsMap attribute.
 	 *
