@@ -151,6 +151,17 @@ public class OfficeSpace
 		return this.commonAccess;
 	}
 	
+	public List<String> getTranslatedCommonAccessList()
+	{
+		List<String> result = new ArrayList<String>();
+		String tempCommAccess = "";
+		for ( String com:commonAccess )
+		{
+			tempCommAccess = "hasAccessTo_"+com;
+			result.add( tempCommAccess );
+		}
+		return result;
+	}
 	
 	/**
 	 * mutator method for capacity attribute.
@@ -304,6 +315,21 @@ public class OfficeSpace
 		tempSet = ratings.values();
 		List<Rating> officeSpaceRatingsList = new ArrayList<Rating> ( tempSet );
 		return officeSpaceRatingsList;
+	}
+	
+	public Float getAverageRating()
+	{
+		Float result = (float) 0.0;
+		Float accum = (float) 0.0;
+		List<Rating> tempRatingList = getAllRatings();
+		for (Rating r:tempRatingList)
+		{
+			accum += (float) r.getStars();
+		}
+		
+		result = accum/(float)tempRatingList.size();
+
+		return result;
 	}
 	
 	/**
