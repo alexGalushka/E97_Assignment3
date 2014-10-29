@@ -71,4 +71,42 @@ public class Facility
 		return this.type;
 	}
 	
+
+	/**
+	 * translator of the category and type to the format of <facilityType> and <facilityType_category> , 
+	 * packaged in the String[2], where first element <facilityType> , second - <facilityType_category>
+	 * @return String[]
+	 */
+	public String[] getTraslatedCategoryAndType()
+	{
+		String[] result = {"",""};
+		result[0] = type;
+		if (!category.equals(""))
+		{
+			String[] arrayCaterory;
+			arrayCaterory= category.split(" ");
+			if (arrayCaterory.length == 1)
+			{
+			    result[1] = category; 
+			}
+			else
+			{
+				String tempStringCateg = "";
+				for (int i = 0; i<arrayCaterory.length; i++)
+				{
+					if ( i == arrayCaterory.length - 1)
+					{
+					    tempStringCateg += arrayCaterory[i];
+					}
+					else
+					{
+						tempStringCateg += arrayCaterory[i]+"_";
+					}		
+				}
+				result[1] = tempStringCateg;
+			}
+		}
+		return result;
+	}
+	
 }

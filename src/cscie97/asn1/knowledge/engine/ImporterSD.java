@@ -2,58 +2,50 @@ package cscie97.asn1.knowledge.engine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import cscie97.asn2.squaredesk.provider.Features;
 import cscie97.asn2.squaredesk.provider.Location;
 import cscie97.asn2.squaredesk.provider.OfficeSpace;
 import cscie97.asn2.squaredesk.provider.Profile;
-import cscie97.asn2.squaredesk.provider.Provider;
 import cscie97.asn2.squaredesk.provider.ProviderNotFoundException;
 import cscie97.asn2.squaredesk.provider.ProviderServiceImpl;
 import cscie97.asn2.squaredesk.provider.User;
 
 public class ImporterSD
 {
-
-	private ProviderServiceImpl provService;
 	private List<User> provUserList;
-	
-
-	//predicate - standard
-	private Predicate predicate;
-	// Preferred features (multiple features can be searched for at once)
 
 	private Predicate locationPredicate;
 	private Predicate featurePredicate;
 	private Predicate facilityAndCategoryPredicate;
 	private Predicate ratingPredicate; 
+	List<Triple> resultTripleList;
 	
-	// start and end date
-	private Map<String, String[]> datesForRentMap;
-	
-	private Map<String, Set<Triple>> mapSdTriples; //might not need them
+	// start and end date specified by Provider - feature deferred.
+	// private Map<String, String[]> datesForRentMap;
 	
 	public ImporterSD(ProviderServiceImpl provService)
 	{
-		this.provService = provService;
 		provUserList = provService.getProviderList( "" );
-		mapSdTriples = new HashMap<String,Set<Triple>>();
+		// datesForRentMap = new HashMap<String, String[]>();
 		locationPredicate = new Predicate ("has_lat_long");
 		featurePredicate = new Predicate ("has_feature");
 		facilityAndCategoryPredicate = new Predicate ("has_facility_type_category");
 		ratingPredicate = new Predicate ("has_average_rating");
+		resultTripleList = new ArrayList<Triple>();
 	}
 	
-	// subject is concatenated string "provId&officeId"
-	// object is the search criteria
-	// predicate is "has"
 	
-	//rename it Search prep?
-	public List<Triple> createSquareDeskTriples ()
+	/**
+	 * collect all required information from the OfficeSpaceImpl object matching the specified search criteria
+	 * (location, facility type and category, feature, minimum average rating) and present to the Renter Service
+	 *  Knowledge graph in the format of Triples
+	 *  Note: subject is concatenated string "provId&officeId"
+	 * @return List<Triple>
+	 */
+	public List<Triple> collectSquareDeskInfoForSearch ()
 	{
 		try
 		{
@@ -78,19 +70,17 @@ public class ImporterSD
 	    	Triple resultingFacTriple;
 	    	// minimum average rating
 	    	Node objRating;
-	    	Triple resultingRatTriple;
-	        
-	        List<Triple> resultTripleList = new ArrayList<Triple>();
+	    	Triple resultingRatTriple; 
 	        Features tempFeatures;
 	        
-	        
+	 
 			for ( User provUser: provUserList )
 			{
 				tempProvider = provUser.getProfile( "provider" );
 				provId = tempProvider.getGuid();
 				officeList = tempProvider.getOfficeSpacesList();
-				
-				
+                String[] tempFacTypeCat = {"",""};
+                //String[] tempDates = {"",""};
 				for ( OfficeSpace office:officeList )
 				{
 					officeId = office.getOfficeSpaceGuid();
@@ -111,20 +101,35 @@ public class ImporterSD
 					}
 					
 					//common access is considered as a Feature as well, translated to the type such "hasAccessTo_..."
-					for ()
+					for (String com:office.getTranslatedCommonAccessList())
 					{
-						objTraslatedCommonAccessFeat = NodegetTranslatedCommonAccessList
+						objTraslatedCommonAccessFeat = new Node ( com );
+						resultingFeatTriple = new Triple( subjId, featurePredicate, objTraslatedCommonAccessFeat );
+						resultTripleList.add(resultingFeatTriple); //add *
+						
 					}
+					
 					objRating = new Node( office.getAverageRating().toString() );
 					resultingRatTriple = new Triple( subjId, ratingPredicate, objRating );
 					resultTripleList.add( resultingRatTriple ); //add *
 					
+					tempFacTypeCat = office.getFacility().getTraslatedCategoryAndType();
+					if ( !tempFacTypeCat[0].equals("") )
+					{
+						objFacility = new Node ( tempFacTypeCat[0] );
+				    	resultingFacTriple = new Triple( subjId, facilityAndCategoryPredicate, objFacility );
+				    	resultTripleList.add( resultingFacTriple ); //add *
+					}
+					if ( !tempFacTypeCat[1].equals("") )
+					{
+						objFacility = new Node ( tempFacTypeCat[1] );;
+				    	resultingFacTriple = new Triple( subjId, facilityAndCategoryPredicate, objFacility );
+				    	resultTripleList.add( resultingFacTriple ); //add *
+					}
 					
-					
-					
-					
-					
-					
+					//get the start and end dates
+					//tempDates[0]
+					//tempDates[1]
 				}
 			}
 		}
@@ -134,10 +139,9 @@ public class ImporterSD
 		}
 		finally
 		{
-			
+			// nothing to put in final lol
 		}
-		
-		return null;
+		return resultTripleList;
 	}
 	
 	private String createSearchableLocation (Location location)
@@ -148,8 +152,11 @@ public class ImporterSD
 		String result = lat.toString()+"_"+lon.toString();
 		return result;
 	}
+	
 	// very important method
 	public void syncUpdate()
-	{}
+	{
+		
+	}
 	
 }
