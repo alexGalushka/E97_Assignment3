@@ -317,7 +317,7 @@ public class OfficeSpace
 		return officeSpaceRatingsList;
 	}
 	
-	public Float getAverageRating()
+	public Float getActualAverageRating()
 	{
 		Float result = (float) 0.0;
 		Float accum = (float) 0.0;
@@ -332,6 +332,11 @@ public class OfficeSpace
 		return result;
 	}
 	
+	public Integer getRoundedAverageRating()
+	{
+		Integer result = Math.round(getActualAverageRating());
+ 		return result;
+	}
 	/**
 	 * mutator method for ratings association.
 	 *

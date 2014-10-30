@@ -3,6 +3,7 @@ package cscie97.asn2.squaredesk.provider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,12 +18,14 @@ public class ProviderServiceImpl implements ProviderService
 	/** The office space map. */
 	private Map<String, OfficeSpace> officeSpaceMap;
 	
+	private Map<String, List<OfficeSpace>> officeSpaceMapByProvider;
 	private static ProviderServiceImpl _obj;
 	
     private ProviderServiceImpl ()
     {
 		providerMap = new HashMap<String, User>();
 		officeSpaceMap = new HashMap<String, OfficeSpace>();
+		officeSpaceMapByProvider = new HashMap<String, List<OfficeSpace>>();
     }
      
     
@@ -49,11 +52,12 @@ public class ProviderServiceImpl implements ProviderService
 	 *
 	 * @param authToken the auth token
 	 * @param provider the provider
-	 * @param providerId the provider id
 	 * @throws ProviderAlreadyExistsException the provider already exists exception
+	 * @throws ProviderNotFoundException 
 	 */
-	public void createProvider ( String authToken, User provider, String providerId ) throws ProviderAlreadyExistsException
+	public void createProvider ( String authToken, User provider) throws ProviderAlreadyExistsException, ProviderNotFoundException
 	{
+		String providerId = provider.getProfile("provider").getGuid();
 		if ( !this.providerMap.containsKey( providerId ) )
 		{
 			this.providerMap.put ( providerId, provider );
@@ -109,8 +113,9 @@ public class ProviderServiceImpl implements ProviderService
 	 * @param provider the provider
 	 * @throws ProviderNotFoundException the provider not found exception
 	 */
-	public void updateProvider ( String authToken, String providerId, User provider) throws ProviderNotFoundException
+	public void updateProvider ( String authToken, User provider ) throws ProviderNotFoundException
 	{
+		String providerId = provider.getGuid();
 		if ( this.providerMap.containsKey( providerId ) )
 		{
 			providerMap.put( providerId, provider );
@@ -251,21 +256,39 @@ public class ProviderServiceImpl implements ProviderService
 	 *
 	 * @param authToken the auth token
 	 * @param officeSpace the office space
-	 * @param guid the guid
+	 * @param guid the guid of the OfficeSpace
 	 * @throws OfficeSpaceAlreadyExistException the office space already exist exception
 	 * @throws AccessException the access exception
 	 */
-	public void createOfficeSpace ( String authToken, OfficeSpace officeSpace, String guid )
+	public void createOfficeSpace ( String authToken, OfficeSpace officeSpace, String providerId )
 			                        throws OfficeSpaceAlreadyExistException, AccessException
 	{
-		if ( !officeSpaceMap.containsKey( guid ) )
+		String officeSpaceId = officeSpace.getOfficeSpaceGuid();
+		if ( !officeSpaceMap.containsKey( officeSpaceId ) )
 		{
-			officeSpaceMap.put( guid, officeSpace );
+			officeSpaceMap.put( officeSpaceId, officeSpace );
 		}
 		else
 		{
 			throw new OfficeSpaceAlreadyExistException();
 		}
+		
+		// put the OfficeSpace in the map with a key as a provider ID (officeSpaceMapByProvider)
+		
+		List<OfficeSpace> tempList;
+		if ( !officeSpaceMapByProvider.containsKey( providerId ) )
+		{
+			tempList = new LinkedList<OfficeSpace>();
+			tempList.add( officeSpace );
+			officeSpaceMapByProvider.put( providerId, tempList );
+		}
+		else
+		{
+			tempList = officeSpaceMapByProvider.get( providerId );
+			tempList.add( officeSpace );
+			officeSpaceMapByProvider.put( providerId, tempList );
+		}
+		
 	}
 	
 	/**
@@ -324,12 +347,24 @@ public class ProviderServiceImpl implements ProviderService
 	 * @param updatedOffice the updated office
 	 * @throws OfficeSpaceNotFoundException the office space not found exception
 	 */
-	public void updateOfficeSpace ( String authToken, String guid,
-			                        String officeSpaceId , OfficeSpace updatedOffice) throws OfficeSpaceNotFoundException
+	public void updateOfficeSpace ( String authToken, String providerId,
+			                        OfficeSpace updatedOffice) throws OfficeSpaceNotFoundException
 	{
-		if ( officeSpaceMap.containsKey( guid ) )
+		String officeSpaceId = updatedOffice.getOfficeSpaceGuid();
+		if ( officeSpaceMap.containsKey( officeSpaceId ) )
 		{
-			officeSpaceMap.put( guid, updatedOffice );
+			officeSpaceMap.put( officeSpaceId, updatedOffice );
+		}
+		else
+		{
+			throw new OfficeSpaceNotFoundException();
+		}
+		List<OfficeSpace> tempList;
+		if ( officeSpaceMapByProvider.containsKey( providerId ) )
+		{
+			tempList = officeSpaceMapByProvider.get( providerId );
+			tempList.add( updatedOffice );
+			officeSpaceMapByProvider.put( providerId, tempList );
 		}
 		else
 		{
@@ -347,17 +382,31 @@ public class ProviderServiceImpl implements ProviderService
 	 * @param updatedOffice the updated office
 	 * @throws OfficeSpaceNotFoundException the office space not found exception
 	 */
-	public void removeOfficeSpace ( String authToken, String guid,
-                                    String officeSpaceId , OfficeSpace updatedOffice) throws OfficeSpaceNotFoundException
+	public void removeOfficeSpace ( String authToken, String providerId,
+                                    String officeSpaceId ) throws OfficeSpaceNotFoundException
 	{
-		if ( officeSpaceMap.containsKey( guid ) )
+		List<OfficeSpace> tempList;
+		OfficeSpace tempOfficeSpace = officeSpaceMap.get( officeSpaceId );
+		if ( officeSpaceMapByProvider.containsKey( providerId ) )
 		{
-			officeSpaceMap.remove( guid );
+			tempList = officeSpaceMapByProvider.get( providerId );
+			tempList.remove(tempOfficeSpace);
+			officeSpaceMapByProvider.put( providerId, tempList );
 		}
 		else
 		{
 			throw new OfficeSpaceNotFoundException();
 		}
+		
+		if ( officeSpaceMap.containsKey( officeSpaceId ) )
+		{
+			officeSpaceMap.remove( officeSpaceId );
+		}
+		else
+		{
+			throw new OfficeSpaceNotFoundException();
+		}
+
 	}	
 	
 	/**

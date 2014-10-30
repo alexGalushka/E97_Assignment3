@@ -17,8 +17,8 @@ public class SearchEngine
 	}
 	public void SearchForOfficeSpace ( Criteria criteria )
 	{
-		Set<Triple> ultimateTripleSetFirst;
-		Set<Triple> ultimateTripleSetLast;
+		Set<Triple> ultimateTripleSetFirst = null;
+		Set<Triple> ultimateTripleSetLast = null;
 		// search by facility
 		// when creating criteria for search user specified type of facility, search
 		// would be executed according to category_type (second element of tempFacArray)
@@ -26,8 +26,17 @@ public class SearchEngine
 		String[] tempFacArray;
 		String search = "";
 		String tempLocation = "";
+		int ratingParam = 0;
 		try
 		{
+			// by location
+			tempLocation = criteria.getLocation().getSearchableLocation();
+			if ( !tempLocation.equals( "" ) )
+			{
+				search = "? has_lat_long "+tempLocation.trim().toLowerCase();
+				ultimateTripleSetFirst = queryEngine.executeQuery( search );
+			}
+			
 			// by facility
 			tempFacArray = criteria.getFacility().getTraslatedCategoryAndType();
 			if ( !tempFacArray[1].equals( "" ) )
@@ -38,18 +47,31 @@ public class SearchEngine
 			{
 				search = "? has_facility_type_category " + tempFacArray[0].trim().toLowerCase();
 			}
-			ultimateTripleSetFirst = queryEngine.executeQuery( search );
+			ultimateTripleSetLast = queryEngine.executeQuery( search );
 			
-			//by location
-			tempLocation = criteria.getLocation().getSearchableLocation();
-			if ( !tempLocation.equals( "" ) )
+			ultimateTripleSetLast.addAll( ultimateTripleSetFirst ); //the most current set
+			
+			// by minimum average rating 
+			// has to loop through rounded up rating from passed in rating parameter up to "5".
+			// if user don't pass the rating parameter to criteria, on search it would default to 0
+			ratingParam = Math.round( criteria.getMinAverageRating() );
+			for (Integer i = ratingParam; i<=5; i++)
 			{
-				search = "? has_lat_long "+tempLocation.trim().toLowerCase();
-				ultimateTripleSetLast = queryEngine.executeQuery( search );
+				search = "? has_average_rating "+i.toString();
+				ultimateTripleSetFirst = queryEngine.executeQuery( search );
+				ultimateTripleSetLast.addAll( ultimateTripleSetFirst );
 			}
 			
-			//
+			// by feature
+			for ( String feat:criteria.getPreferredFeatures() )
+			{
+				search = "? has_feature "+feat.trim().toLowerCase();
+				ultimateTripleSetFirst = queryEngine.executeQuery( search );
+				ultimateTripleSetLast.addAll( ultimateTripleSetFirst );
+			}
 			
+			// now we have an ultimate set of Triples returned by search, which is going to be passed to 
+			// availability validator
 		}
 		catch (QueryEngineException e)
 		{

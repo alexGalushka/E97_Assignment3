@@ -18,10 +18,10 @@ public interface ProviderService
 	 *
 	 * @param authToken the auth token
 	 * @param provider the provider
-	 * @param providerId the provider id
 	 * @throws ProviderAlreadyExistsException the provider already exists exception
+	 * @throws ProviderNotFoundException 
 	 */
-	public void createProvider ( String authToken, User provider, String providerId ) throws ProviderAlreadyExistsException;
+	public void createProvider ( String authToken, User provider ) throws ProviderAlreadyExistsException, ProviderNotFoundException;
 	
 	/**
 	 * Returns provider per passed in providerId,
@@ -47,11 +47,10 @@ public interface ProviderService
 	 * If providerId not found, throws ProviderNotFoundException.
 	 *
 	 * @param authToken the auth token
-	 * @param providerId the provider id
 	 * @param provider the provider
 	 * @throws ProviderNotFoundException the provider not found exception
 	 */
-	public void updateProvider ( String authToken, String providerId, User provider) throws ProviderNotFoundException;
+     public void updateProvider ( String authToken, User provider ) throws ProviderNotFoundException;
 	
 	/**
 	 * Deleted the provider.
@@ -112,12 +111,12 @@ public interface ProviderService
 	 *
 	 * @param authToken the auth token
 	 * @param officeSpace the office space
-	 * @param guid the guid
+	 * @param providerId the guid
 	 * @throws OfficeSpaceAlreadyExistException the office space already exist exception
 	 * @throws AccessException the access exception
 	 */
-	public void createOfficeSpace ( String authToken, OfficeSpace officeSpace, String guid )
-			                        throws OfficeSpaceAlreadyExistException, AccessException;
+	public void createOfficeSpace ( String authToken, OfficeSpace officeSpace,
+			                        String providerId ) throws OfficeSpaceAlreadyExistException, AccessException;
 	
 	/**
 	 * accessor method for officeSpaceMap attribute
@@ -149,13 +148,12 @@ public interface ProviderService
 	 * if the guid not found in the map, it throws OfficeSpaceNotFoundException exception.
 	 *
 	 * @param authToken the auth token
-	 * @param guid the guid
-	 * @param officeSpaceId the office space id
+	 * @param providerId the guid
 	 * @param updatedOffice the updated office
 	 * @throws OfficeSpaceNotFoundException the office space not found exception
 	 */
-	public void updateOfficeSpace ( String authToken, String guid,
-			                        String officeSpaceId , OfficeSpace updatedOffice) throws OfficeSpaceNotFoundException;
+	public void updateOfficeSpace ( String authToken, String providerId,
+			                        OfficeSpace updatedOffice) throws OfficeSpaceNotFoundException;
 	
 	/**
 	 * removed particular office space from the office space map based on guid passed in
@@ -167,9 +165,9 @@ public interface ProviderService
 	 * @param updatedOffice the updated office
 	 * @throws OfficeSpaceNotFoundException the office space not found exception
 	 */
-	public void removeOfficeSpace ( String authToken, String guid,
-                                    String officeSpaceId , OfficeSpace updatedOffice) throws OfficeSpaceNotFoundException;	
-	
+	public void removeOfficeSpace ( String authToken, String providerId,
+			                        String officeSpaceId ) throws OfficeSpaceNotFoundException;	
+	 
 	/**
 	 * The new Rating is added to officeSpaceRatingMap within the officeSpaceMap,
 	 * if the office space id is not found - OfficeSpaceNotFoundException is thrown;

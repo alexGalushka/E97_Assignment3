@@ -101,6 +101,34 @@ public class Renter implements Profile
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
+	@Override
+	public List<OfficeSpace> getOfficeSpacesList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List<String> getOfficeSpacesIds() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void setOfficeSpacesIds(List<String> officeSpacesIds) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void addOfficeSpacesIdToList(String officeSpacesId) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 }

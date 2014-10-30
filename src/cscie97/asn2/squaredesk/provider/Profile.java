@@ -53,5 +53,19 @@ public interface Profile
 	 */
 	public List<Rating> getAllRatings();
 	
+	/**
+	 * @return the officeSpacesIds
+	 */
+	public List<String> getOfficeSpacesIds();
 
+	/**
+	 * @param officeSpacesIds the officeSpacesIds to set
+	 */
+	public void setOfficeSpacesIds(List<String> officeSpacesIds);
+	
+	/**
+	 * add officeSpace Id to officeSpacesIds
+	 * @param String: officeSpacesId
+	 */
+	public void addOfficeSpacesIdToList( String officeSpacesId );
 }

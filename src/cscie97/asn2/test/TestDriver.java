@@ -178,29 +178,37 @@ public class TestDriver
 				
 		uutGuidGenerator = new GuidGenerator();
 		//create new office space with unique guid	
-		String officeId = uutGuidGenerator.generateOfficeSpaceGuid( "auth" );
-		uutOfficeSpace.setOfficeSpaceGuid(officeId);
-		
-		//Instantiate OfficeProviderService object
-		uutOfficeProviderService = ProviderServiceImpl.getInstance();
-		uutOfficeProviderService.createOfficeSpace( "auth", uutOfficeSpace, officeId );
-		//create a new OfficeProvider with unique guid
 		String providerId = uutGuidGenerator.generateProviderGuid( "auth" );
+		String officeId = uutGuidGenerator.generateOfficeSpaceGuid( "auth" );
+		uutOfficeSpace.setOfficeSpaceGuid( officeId );
+		uutOfficeSpace.setProviderId( providerId );
 		
+		//Instantiate ProviderService object
+		uutOfficeProviderService = ProviderServiceImpl.getInstance();
+		uutOfficeProviderService.createOfficeSpace( "auth", uutOfficeSpace, providerId );
+		
+		//create a new Provider with unique guid
 		uutOfficeProvider = new Provider();
+		uutOfficeProvider.setGuid( providerId );
 		user = new User();
 		user.setPicture( providerPictureUri );
 		user.setContact( uutContactInfo );
 		user.setAccount( uutAccount );
-		
-		uutOfficeProvider.setGuid( providerId );
+				
 		HashMap<String, OfficeSpace> uutOfficeSpaceMap = new HashMap<String, OfficeSpace>();
 		uutOfficeSpaceMap.put( providerId, uutOfficeSpace );
 		uutOfficeProvider.setOfficeSpaces( uutOfficeSpaceMap );
 		
 		user.addProfile("provider", uutOfficeProvider);
 		
-		uutOfficeProviderService.createProvider( "auth", user, providerId );
+		try 
+		{
+			uutOfficeProviderService.createProvider( "auth", user );
+		}
+		catch (ProviderNotFoundException e1)
+		{
+			System.out.println ( "ERROR: Provider not found." );
+		}
 		
 		// TESTS:
 		Collection<Rating> ratingList = null;

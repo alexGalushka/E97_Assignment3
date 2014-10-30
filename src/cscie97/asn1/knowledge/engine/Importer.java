@@ -52,10 +52,10 @@ public class Importer
 	        String provAndOfficeId;
 	        List<OfficeSpace> officeList;
 	        
-	    	//subject
+	    	// subject
 	    	Node subjId;
 	    	
-	        //feature
+	        // feature
 	    	Node objFeature;
 	    	Node objTraslatedCommonAccessFeat;
 	    	Triple resultingFeatTriple;
@@ -106,7 +106,7 @@ public class Importer
 						
 					}
 					
-					objRating = new Node( office.getAverageRating().toString().trim().toLowerCase() );
+					objRating = new Node( office.getRoundedAverageRating().toString().trim().toLowerCase() );
 					resultingRatTriple = new Triple( subjId, ratingPredicate, objRating );
 					resultTripleList.add( resultingRatTriple ); //add *
 					

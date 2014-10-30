@@ -3,6 +3,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class Provider implements Profile
 	/** The provider ratings map. */
 	private Map<String, Rating> ratingsMap;
 	
-	
+	private List<String> officeSpacesIds;
 	/** The office provider guid. */
 	private String guid;
 	
@@ -31,6 +32,7 @@ public class Provider implements Profile
 		this.officeSpacesMap = new HashMap<String, OfficeSpace>();
 		this.ratingsMap = new HashMap<String, Rating>();
 		this.guid = "";
+		this.setOfficeSpacesIds(new LinkedList<String>());
 	}
 	
 	/**
@@ -125,6 +127,31 @@ public class Provider implements Profile
 		List<Rating> officeProviderRatingsList = new ArrayList<Rating> ( tempSet );
 		return officeProviderRatingsList;
 	}
+
+	/**
+	 * @return the officeSpacesIds
+	 */
+	public List<String> getOfficeSpacesIds()
+	{
+		return officeSpacesIds;
+	}
+
+	/**
+	 * @param officeSpacesIds the officeSpacesIds to set
+	 */
+	public void setOfficeSpacesIds( List<String> officeSpacesIds )
+	{
+		this.officeSpacesIds = officeSpacesIds;
+	}
 	
+	
+	/**
+	 * add officeSpace Id to officeSpacesIds
+	 * @param String: officeSpacesId
+	 */
+	public void addOfficeSpacesIdToList( String officeSpacesId )
+	{
+		this.officeSpacesIds.add( officeSpacesId );
+	}
 
 }

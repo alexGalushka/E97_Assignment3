@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import cscie97.asn2.squaredesk.provider.OfficeSpace;
+
 public class SchedulingService
 {
 	// the code for defensive programming: checking the date validity
@@ -87,7 +89,7 @@ public class SchedulingService
 			throw new BookingException ("start date has to be before end date");
 		}
 		
-		if( !checkAvailability( booking ) )
+		if( !checkAvailability( booking.getOfficespace(), booking.getStartDate(), booking.getEndDate() ) )
 		{
 			throw new BookingException ("you can't book this office space on the chosen date");
 		}
@@ -107,14 +109,14 @@ public class SchedulingService
 	 * @param Booking: booking 
 	 * @return true if OS is available and false if not
 	 */
-	public boolean checkAvailability (Booking booking)
+	public boolean checkAvailability ( OfficeSpace office, Date startDate, Date endDate )
 	{
 		boolean result = true;
-		String tempStartDate = sdf.format(booking.getStartDate());
-		String tempEndDate = sdf.format(booking.getEndDate());
+		String tempStartDate = sdf.format( startDate );
+		String tempEndDate = sdf.format( endDate );
 		
 		List<String> datesRangeList = getDatesRange ( tempStartDate, tempEndDate ); 
-		String receivedOfficeSpaceId = booking.getOfficespace().getOfficeSpaceGuid();
+		String receivedOfficeSpaceId = office.getOfficeSpaceGuid();
 		
 		List<Booking> tempBookingList; 
 		String bookedOfficeSpaceId;
