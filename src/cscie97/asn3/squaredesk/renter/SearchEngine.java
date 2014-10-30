@@ -1,22 +1,35 @@
 package cscie97.asn3.squaredesk.renter;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import cscie97.asn1.knowledge.engine.QueryEngine;
 import cscie97.asn1.knowledge.engine.QueryEngineException;
 import cscie97.asn1.knowledge.engine.Triple;
+import cscie97.asn2.squaredesk.provider.OfficeSpace;
+import cscie97.asn2.squaredesk.provider.OfficeSpaceNotFoundException;
+import cscie97.asn2.squaredesk.provider.ProviderService;
+import cscie97.asn2.squaredesk.provider.ProviderServiceImpl;
 
 public class SearchEngine
 {
 	
 	private QueryEngine queryEngine;
+	private SchedulingService schedService;
+	private ProviderService providerService;
 	
 	public SearchEngine()
 	{
 		queryEngine = new QueryEngine();
+		providerService = ProviderServiceImpl.getInstance();
+		schedService = SchedulingService.getInstance();
 	}
-	public void SearchForOfficeSpace ( Criteria criteria )
+	
+	
+	public List<OfficeSpace> SearchForOfficeSpace ( Criteria criteria )
 	{
+		List<OfficeSpace> resultedOfficeSpaceList = new LinkedList<OfficeSpace>();
 		Set<Triple> ultimateTripleSetFirst = null;
 		Set<Triple> ultimateTripleSetLast = null;
 		// search by facility
@@ -78,13 +91,33 @@ public class SearchEngine
 			// TODO Auto-generated catch block
 		}
 		finally
-		{
-				
-			
+		{ 
+		    List<OfficeSpace> tempOfficeSpaces = new LinkedList<OfficeSpace>();
+			try
+			{
+			    String id = "";
+				for ( Triple tr: ultimateTripleSetLast )
+				{
+					id =  tr.getSubject().toString();
+					tempOfficeSpaces.add( providerService.getOfficeSpace( "" , id ) );
+				}
+			}
+			catch (OfficeSpaceNotFoundException e)
+			{
+				// TODO Auto-generated catch block
+			}
+			finally
+			{
+				for ( OfficeSpace office:tempOfficeSpaces )
+				{
+					if ( schedService.checkAvailability( office, criteria.getStartDate(), criteria.getEndDate() ) ) 
+					{
+						resultedOfficeSpaceList.add( office );
+					}
+				}
+			}
 		}
-		
-		
+		return resultedOfficeSpaceList;
 	}
-	
-	
+
 }

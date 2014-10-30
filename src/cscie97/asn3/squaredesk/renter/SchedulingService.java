@@ -30,7 +30,7 @@ public class SchedulingService
 		}
 	 
 	 */
-	
+	private static SchedulingService _obj;
 	private Map<String, List<Booking>> bookingMap;
 	private SimpleDateFormat sdf;
 	private String date;
@@ -41,7 +41,7 @@ public class SchedulingService
 	/**
 	 * unparameterized constructor: created a brand new bookingMap with FIX_NUM_DAYS keys
 	 */
-	public SchedulingService()
+	private SchedulingService()
 	{
 		bookingMap = new HashMap<String,List<Booking>>();
 		sdf = new SimpleDateFormat("yyyy M d");
@@ -72,6 +72,23 @@ public class SchedulingService
 		}
 
 	}
+	
+	
+    /**
+     * A special static method to access the single SchedulingService instance
+     * @return _obj - type: SchedulingService
+     */
+    public static SchedulingService getInstance() 
+    {
+    	//Checking if the instance is null, then it will create new one and return it
+        if (_obj == null)  
+        //otherwise it will return previous one.
+        {
+            _obj = new SchedulingService();
+        }
+        return _obj;
+    }
+	
 	
 	/**
 	 * add the new booking to the bookingMap

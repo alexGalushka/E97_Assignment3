@@ -72,7 +72,7 @@ public class TestDriver
 		Rating uutRating2;
 		
 		@SuppressWarnings("unused")
-		SchedulingService schs = new SchedulingService() ; 
+		//SchedulingService schs = new SchedulingService() ; 
 		
         // * Data to Office Space * //
 			

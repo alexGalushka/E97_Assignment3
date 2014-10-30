@@ -1,5 +1,8 @@
 package cscie97.asn3.squaredesk.renter;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,27 +16,87 @@ public class Renter implements Profile
 	
 	private Criteria criteria;
 	private Gender gender;
-		
+	private String guid;
+	
+	/** The renter ratings map. */
+	private Map<String, Rating> ratingsMap;
 	
 	public Renter()
 	{
 		criteria = new Criteria();
 		gender = Gender.MALE;
+		this.ratingsMap = new HashMap<String, Rating>();
+		guid = "";
+	}
+
+
+	/**
+	 * accessor method
+	 * @return the guid
+	 */
+	public String getGuid()
+	{
+		return guid;
+	}
+
+
+	/**
+	 * mutator methos
+	 * @param guid the guid to set
+	 */
+	public void setGuid(String guid)
+	{
+		this.guid = guid;
 	}
 
 
 	/**
 	 * @return the criteria
 	 */
-	public Criteria getCriteria() {
+	public Criteria getCriteria()
+	{
 		return criteria;
+	}
+
+
+	/**
+	 * @return the ratingsMap
+	 */
+	public Map<String, Rating> getRatingsMap()
+	{
+		return ratingsMap;
+	}
+
+
+	/**
+	 * getter method for all ratings per office provider.
+	 *
+	 * @return List<Rating>
+	 */
+	public List<Rating> getAllRatings()
+	{
+		Collection<Rating> tempSet;
+		tempSet = ratingsMap.values();
+		List<Rating> officeProviderRatingsList = new ArrayList<Rating> ( tempSet );
+		return officeProviderRatingsList;
+	}
+	
+	
+	
+	/**
+	 * @param ratingsMap the ratingsMap to set
+	 */
+	public void setRatingsMap(Map<String, Rating> ratingsMap)
+	{
+		this.ratingsMap = ratingsMap;
 	}
 
 
 	/**
 	 * @param criteria the criteria to set
 	 */
-	public void setCriteria(Criteria criteria) {
+	public void setCriteria(Criteria criteria)
+	{
 		this.criteria = criteria;
 	}
 
@@ -41,7 +104,8 @@ public class Renter implements Profile
 	/**
 	 * @return the gender
 	 */
-	public Gender getGender() {
+	public Gender getGender()
+	{
 		return gender;
 	}
 
@@ -49,84 +113,50 @@ public class Renter implements Profile
 	/**
 	 * @param gender the gender to set
 	 */
-	public void setGender(Gender gender) {
+	public void setGender(Gender gender)
+	{
 		this.gender = gender;
 	}
 
 
-	@Override
-	public void setGuid(String guid) {
-		// TODO Auto-generated method stub
+	public void setOfficeSpaces(Map<String, OfficeSpace> officeSpacesMap)
+	{
+		// deferred to next release
 		
 	}
 
 
-	@Override
-	public String getGuid() {
-		// TODO Auto-generated method stub
+	public Map<String, OfficeSpace> getOfficeSpaces() 
+	{
+		// deferred to next release
 		return null;
 	}
 
 
-	@Override
-	public void setOfficeSpaces(Map<String, OfficeSpace> officeSpacesMap) {
-		// TODO Auto-generated method stub
+	public List<OfficeSpace> getOfficeSpacesList() 
+	{
+		// deferred to next release
+		return null;
+	}
+
+
+	public List<String> getOfficeSpacesIds()
+    {
+		// deferred to next release
+		return null;
+	}
+
+
+	public void setOfficeSpacesIds(List<String> officeSpacesIds)
+	{
+		// deferred to next release
 		
 	}
 
 
-	@Override
-	public Map<String, OfficeSpace> getOfficeSpaces() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public void setRatingsMap(Map<String, Rating> ratingsMap) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public Map<String, Rating> getRatingsMap() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public List<Rating> getAllRatings() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public List<OfficeSpace> getOfficeSpacesList() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public List<String> getOfficeSpacesIds() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public void setOfficeSpacesIds(List<String> officeSpacesIds) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void addOfficeSpacesIdToList(String officeSpacesId) {
-		// TODO Auto-generated method stub
+	public void addOfficeSpacesIdToList(String officeSpacesId)
+	{
+		// deferred to next release
 		
 	}
 	

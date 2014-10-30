@@ -30,8 +30,8 @@ public class ProviderServiceImpl implements ProviderService
      
     
     /**
-     * A special static method to access the single KnowledgeGraph instance
-     * @return _obj - type: KnowledgeGraph
+     * A special static method to access the single ProviderServiceImpl instance
+     * @return _obj - type: ProviderServiceImpl
      */
     public static ProviderServiceImpl getInstance() 
     {
