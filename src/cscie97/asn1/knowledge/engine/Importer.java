@@ -1,75 +1,152 @@
 package cscie97.asn1.knowledge.engine;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The Importer class is responsible for reading triples from input files using N­Triple format
- * @author APGalush
- *
- */
+import cscie97.asn2.squaredesk.provider.Features;
+import cscie97.asn2.squaredesk.provider.OfficeSpace;
+import cscie97.asn2.squaredesk.provider.Profile;
+import cscie97.asn2.squaredesk.provider.ProviderNotFoundException;
+import cscie97.asn2.squaredesk.provider.ProviderServiceImpl;
+import cscie97.asn2.squaredesk.provider.User;
+
 public class Importer
 {
+	private List<User> provUserList;
+
+	private Predicate locationPredicate;
+	private Predicate featurePredicate;
+	private Predicate facilityAndCategoryPredicate;
+	private Predicate ratingPredicate; 
+	List<Triple> resultTripleList;
 	
-	private List<Triple> listOfTriples;
-	private Utilities util; 	
-	private BufferedReader br;
+	// start and end date specified by Provider - feature deferred.
+	// private Map<String, String[]> datesForRentMap;
 	
-	public Importer()
+	public Importer(ProviderServiceImpl provService)
 	{
-		listOfTriples = new LinkedList<Triple>();
-		util = new Utilities();
+		provUserList = provService.getProviderList( "" );
+		// datesForRentMap = new HashMap<String, String[]>();
+		locationPredicate = new Predicate ("has_lat_long");
+		featurePredicate = new Predicate ("has_feature");
+		facilityAndCategoryPredicate = new Predicate ("has_facility_type_category");
+		ratingPredicate = new Predicate ("has_average_rating");
+		resultTripleList = new ArrayList<Triple>();
 	}
+	
 	
 	/**
-	 * Imports triples from N_Triple formatted file into the KnowledgeGraph, checks for valid input file name, throws ImportException on error 
-     * accessing or processing the input Triple File
-	 * @param fileName - type: String
-	 * @throws ImportException
+	 * collect all required information from the OfficeSpaceImpl object matching the specified search criteria
+	 * (location, facility type and category, feature, minimum average rating) and present to the Renter Service
+	 *  Knowledge graph in the format of Triples
+	 *  Note: subject is concatenated string "provId&officeId"
+	 * @return List<Triple>
 	 */
-	
-	public void importTripleFile ( String fileName ) throws ImportException
+	public void collectSquareDeskInfoForSearch ()
 	{
-
-		String line = null;
 		try
 		{
-			br = new BufferedReader( new FileReader( fileName ) );
-			// read input file line by line
-			while ( ( line = br.readLine() ) != null )
+	        Profile tempProvider;
+	        String provId;
+	        String officeId;
+	        String provAndOfficeId;
+	        List<OfficeSpace> officeList;
+	        
+	    	//subject
+	    	Node subjId;
+	    	
+	        //feature
+	    	Node objFeature;
+	    	Node objTraslatedCommonAccessFeat;
+	    	Triple resultingFeatTriple;
+	    	// location
+	    	Node objLocation;
+	    	Triple resultingLocTriple;
+	    	// facility type, and category
+	    	Node objFacility;
+	    	Triple resultingFacTriple;
+	    	// minimum average rating
+	    	Node objRating;
+	    	Triple resultingRatTriple; 
+	        Features tempFeatures;
+	        
+	 
+			for ( User provUser: provUserList )
 			{
-				String[] tempResult = line.split( " " );
-				// check each line for the format correctness: input can not contain "?" string 
-				if ( !util.arrayContains( tempResult, "?" ) )
+				tempProvider = provUser.getProfile( "provider" );
+				provId = tempProvider.getGuid().trim().toLowerCase();
+				officeList = tempProvider.getOfficeSpacesList();
+                String[] tempFacTypeCat = {"",""};
+                //String[] tempDates = {"",""};
+				for ( OfficeSpace office:officeList )
 				{
-					// process lines only with 3 strings and nonempty strings
-					if ( tempResult.length == 3 &&  !util.arrayContains( tempResult, "" ) )
+					officeId = office.getOfficeSpaceGuid().trim().toLowerCase();
+					provAndOfficeId = provId+"&"+officeId;	
+					subjId = new Node(provAndOfficeId);
+					
+					objLocation = new Node(office.getLocation().getSearchableLocation().trim().toLowerCase());
+					resultingLocTriple = new Triple( subjId, locationPredicate, objLocation );
+					resultTripleList.add(resultingLocTriple); //add *
+					
+					tempFeatures = office.getFeatures();
+					
+					for (String feature:tempFeatures.getAllFeatures())
 					{
-						// each string has to be trimmed normalized and also "period character" has to be removed from the query (particularly from object string)
-						Node mySubject = new Node ( tempResult[0].trim().toLowerCase() );
-						Predicate myPredicate = new Predicate ( tempResult[1].trim().toLowerCase() );
-						Node myObbject = new Node ( util.removeLastChar ( tempResult[2].trim().toLowerCase() ) );
-						Triple myTriple = new Triple ( mySubject, myPredicate, myObbject );
-						listOfTriples.add( myTriple );	
+						objFeature  = new Node ( feature.trim().toLowerCase() );
+						resultingFeatTriple = new Triple( subjId, featurePredicate, objFeature );
+						resultTripleList.add(resultingFeatTriple); //add *
 					}
+					
+					//common access is considered as a Feature as well, translated to the type such "hasAccessTo_..."
+					for (String com:office.getTranslatedCommonAccessList())
+					{
+						objTraslatedCommonAccessFeat = new Node ( com.trim().toLowerCase() );
+						resultingFeatTriple = new Triple( subjId, featurePredicate, objTraslatedCommonAccessFeat );
+						resultTripleList.add(resultingFeatTriple); //add *
+						
+					}
+					
+					objRating = new Node( office.getAverageRating().toString().trim().toLowerCase() );
+					resultingRatTriple = new Triple( subjId, ratingPredicate, objRating );
+					resultTripleList.add( resultingRatTriple ); //add *
+					
+					tempFacTypeCat = office.getFacility().getTraslatedCategoryAndType();
+					if ( !tempFacTypeCat[0].equals("") )
+					{
+						objFacility = new Node ( tempFacTypeCat[0].trim().toLowerCase() );
+				    	resultingFacTriple = new Triple( subjId, facilityAndCategoryPredicate, objFacility );
+				    	resultTripleList.add( resultingFacTriple ); //add *
+					}
+					if ( !tempFacTypeCat[1].equals("") )
+					{
+						objFacility = new Node ( tempFacTypeCat[1].trim().toLowerCase() );
+				    	resultingFacTriple = new Triple( subjId, facilityAndCategoryPredicate, objFacility );
+				    	resultTripleList.add( resultingFacTriple ); //add *
+					}
+					
+					//get the start and end dates
+					//tempDates[0]
+					//tempDates[1]
 				}
-				else
-				{
-					throw new ImportException ( "Input format is incorrect" );
-				}
-				
-			 }	
-			br.close();
-		} 
-		catch ( IOException e )
-		{
-
-			throw new ImportException ( e.toString() );
+			}
 		}
-	
-		KnowledgeGraph.getInstance().importTriples ( listOfTriples );
+		catch ( ProviderNotFoundException e )
+		{
+			//do nothing
+		}
+		finally
+		{
+			//pass the TripleList to KnowledgeGraph
+			KnowledgeGraph.getInstance().importTriples ( resultTripleList );
+		}
 	}
+	
+	
+	// very important method
+	public void syncUpdate()
+	{
+		collectSquareDeskInfoForSearch();
+		//add smth else? - of course!!!
+	}
+
 }

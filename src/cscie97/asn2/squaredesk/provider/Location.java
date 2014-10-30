@@ -96,4 +96,13 @@ public class Location
 	{
 		return this.address;
 	}
+	
+	public String getSearchableLocation ()
+	{
+		// as per "has_lat_long"
+		Integer lat = latitude.intValue();
+		Integer lon = longitude.intValue();
+		String result = lat.toString()+"_"+lon.toString();
+		return result;
+	}
 }

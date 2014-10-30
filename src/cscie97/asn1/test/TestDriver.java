@@ -19,7 +19,7 @@ public class TestDriver
 	 * @param args - type: Array of Strings
 	 * @throws ImportException
 	 */
-    public static void main(String[] args) throws ImportException
+    public static void main(String[] args)
     {
     	Importer myImp = new Importer();
     	QueryEngine myQueryEng = new QueryEngine();
