@@ -8,6 +8,13 @@ import java.util.List;
 import java.util.Map;
 
 
+
+import cscie97.common.squaredesk.Account;
+import cscie97.common.squaredesk.ContactInfo;
+import cscie97.common.squaredesk.Profile;
+import cscie97.common.squaredesk.Rating;
+
+
 /**
  * The Class OfficeProvider.
  */
@@ -21,6 +28,16 @@ public class Provider implements Profile
 	private Map<String, Rating> ratingsMap;
 	
 	private List<String> officeSpacesIds;
+	
+	/** The picture. */
+	private URI picture;
+	
+	/** The contact. */
+	private ContactInfo contact;
+	
+	/** The account. */
+	private Account account;
+	
 	/** The office provider guid. */
 	private String guid;
 	
@@ -41,18 +58,65 @@ public class Provider implements Profile
 	 * @param guid the office provider guid
 	 */
 	public Provider ( URI picture, ContactInfo contact,
-			          Map<String, OfficeSpace> officeSpaces, Account account, String guid )
+			          Map<String, OfficeSpace> officeSpaces, Account account )
 	{
 		this.officeSpacesMap = officeSpaces;
-		this.guid = guid;
+		this.guid = "";
 		this.ratingsMap = new HashMap<String, Rating>();
 	}
+
 	
-	
+	/**
+	 * @return the picture
+	 */
+	public URI getPicture()
+	{
+		return picture;
+	}
+
+	/**
+	 * @param picture the picture to set
+	 */
+	public void setPicture(URI picture)
+	{
+		this.picture = picture;
+	}
+
+	/**
+	 * @return the contact
+	 */
+	public ContactInfo getContact()
+	{
+		return contact;
+	}
+
+	/**
+	 * @param contact the contact to set
+	 */
+	public void setContact(ContactInfo contact)
+	{
+		this.contact = contact;
+	}
+
+	/**
+	 * @return the account
+	 */
+	public Account getAccount() 
+	{
+		return account;
+	}
+
+	/**
+	 * @param account the account to set
+	 */
+	public void setAccount(Account account) {
+		this.account = account;
+	}
+
 	/**
 	 * mutator method for guid attribute.
 	 *
-	 * @param guid the new office provider guid
+	 * @return String
 	 */
 	public void setGuid ( String guid )
 	{
@@ -68,7 +132,6 @@ public class Provider implements Profile
 	{
 		return this.guid;
 	}
-	
 	
 	/**
 	 * mutator method for officeSpacesMap attribute.
@@ -93,7 +156,12 @@ public class Provider implements Profile
 	
 	public List<OfficeSpace> getOfficeSpacesList()
 	{
-		return (List<OfficeSpace>) this.officeSpacesMap.values();
+		List<OfficeSpace> tempListOfficeSpace = new LinkedList<OfficeSpace>();
+		for (OfficeSpace os : this.officeSpacesMap.values() )
+		{
+			tempListOfficeSpace.add( os );
+		}
+		return tempListOfficeSpace;
 	}
 	/**
 	 * mutator method for ratingsMap attribute.

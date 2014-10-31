@@ -18,18 +18,7 @@ import cscie97.asn2.squaredesk.provider.OfficeSpace;
 
 public class SchedulingService
 {
-	// the code for defensive programming: checking the date validity
-	/* 
-	 Calendar cal = Calendar.getInstance();
-	try {
-    	cal.setTime(yourDate);
-		}
-	catch (Exception e)
-	    {
-  		System.out.println("Invalid date");
-		}
-	 
-	 */
+
 	private static SchedulingService _obj;
 	private Map<String, List<Booking>> bookingMap;
 	private SimpleDateFormat sdf;
@@ -95,8 +84,9 @@ public class SchedulingService
 	 * @param Booking: booking
 	 * @throws BookingException
 	 */
-	public void createBooking ( Booking booking ) throws BookingException
+	public boolean createBooking ( Booking booking ) throws BookingException
 	{
+		boolean result = true;
 		
 		Date startDate = booking.getStartDate();
 		Date endDate = booking.getEndDate();
@@ -118,8 +108,14 @@ public class SchedulingService
 		for ( String d:datesRangeList )
 		{
 			updateBookingMap ( d, booking );
-		}		
+		}	
+		
+		result = true;
+		
+		return result;
+		
 	}
+	
 	
 	/**
 	 * this method check if certain Office Space (OS) is available for rent for "booked dates"
@@ -139,13 +135,16 @@ public class SchedulingService
 		String bookedOfficeSpaceId;
 		for (String date:datesRangeList)
 		{
-			tempBookingList= bookingMap.get(date);
-			for (Booking b:tempBookingList)
+			tempBookingList = bookingMap.get(date);
+			if ( tempBookingList != null )
 			{
-				bookedOfficeSpaceId = b.getOfficespace().getOfficeSpaceGuid();
-				if (bookedOfficeSpaceId.equals(receivedOfficeSpaceId))
+				for (Booking b:tempBookingList)
 				{
-					result =  false;
+					bookedOfficeSpaceId = b.getOfficespace().getOfficeSpaceGuid();
+					if (bookedOfficeSpaceId.equals(receivedOfficeSpaceId))
+					{
+						result =  false;
+					}
 				}
 			}
 		}
@@ -206,18 +205,23 @@ public class SchedulingService
 	 */
 	private void updateBookingMap ( String date, Booking booking )
 	{
-		List<Booking> tempBookongList;
+		List<Booking> tempBookingList;
 		if (bookingMap.containsKey(date))
 		{
-			tempBookongList = bookingMap.get(date);
-			tempBookongList.add(booking);
-		    bookingMap.put(date, tempBookongList);
+			tempBookingList = bookingMap.get(date);
+			if ( tempBookingList == null )
+			{
+				tempBookingList = new LinkedList<Booking>();
+				
+			}
+			tempBookingList.add(booking);
+		    bookingMap.put(date, tempBookingList);
 		}
 		else
 		{
-			tempBookongList = new LinkedList<Booking>();
-			tempBookongList.add(booking);
-			bookingMap.put(date, tempBookongList);
+			tempBookingList = new LinkedList<Booking>();
+			tempBookingList.add(booking);
+			bookingMap.put(date, tempBookingList);
 		}
 	}
 	
@@ -240,7 +244,7 @@ public class SchedulingService
 		String tempDateAfterRolling = "";
 		String[]tempDateAfterRollingArr;
 		String checkYear;
-		
+		datesList.add (startDate);
 		while (!endDate.equals(tempDateAfterRolling))
 		{
 			tempCalendar.roll(Calendar.DAY_OF_YEAR, true); 

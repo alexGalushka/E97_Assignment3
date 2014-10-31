@@ -3,16 +3,15 @@ package cscie97.asn1.knowledge.engine;
 import java.util.ArrayList;
 import java.util.List;
 
-import cscie97.asn2.squaredesk.provider.Features;
+import cscie97.common.squaredesk.Features;
 import cscie97.asn2.squaredesk.provider.OfficeSpace;
-import cscie97.asn2.squaredesk.provider.Profile;
-import cscie97.asn2.squaredesk.provider.ProviderNotFoundException;
+import cscie97.asn2.squaredesk.provider.ProviderService;
+import cscie97.common.squaredesk.Profile;
 import cscie97.asn2.squaredesk.provider.ProviderServiceImpl;
-import cscie97.asn2.squaredesk.provider.User;
 
 public class Importer
 {
-	private List<User> provUserList;
+	private List<Profile> provUserList;
 
 	private Predicate locationPredicate;
 	private Predicate featurePredicate;
@@ -23,9 +22,10 @@ public class Importer
 	// start and end date specified by Provider - feature deferred.
 	// private Map<String, String[]> datesForRentMap;
 	
-	public Importer(ProviderServiceImpl provService)
+	
+	public Importer(ProviderService providerService)
 	{
-		provUserList = provService.getProviderList( "" );
+		provUserList = providerService.getProviderList( "" );
 		// datesForRentMap = new HashMap<String, String[]>();
 		locationPredicate = new Predicate ("has_lat_long");
 		featurePredicate = new Predicate ("has_feature");
@@ -71,9 +71,9 @@ public class Importer
 	        Features tempFeatures;
 	        
 	 
-			for ( User provUser: provUserList )
+			for ( Profile provUser: provUserList )
 			{
-				tempProvider = provUser.getProfile( "provider" );
+				tempProvider = provUser;//.getProfile( "provider" );
 				provId = tempProvider.getGuid().trim().toLowerCase();
 				officeList = tempProvider.getOfficeSpacesList();
                 String[] tempFacTypeCat = {"",""};
@@ -111,17 +111,23 @@ public class Importer
 					resultTripleList.add( resultingRatTriple ); //add *
 					
 					tempFacTypeCat = office.getFacility().getTraslatedCategoryAndType();
-					if ( !tempFacTypeCat[0].equals("") )
+					if ( tempFacTypeCat[0] != null )
 					{
-						objFacility = new Node ( tempFacTypeCat[0].trim().toLowerCase() );
-				    	resultingFacTriple = new Triple( subjId, facilityAndCategoryPredicate, objFacility );
-				    	resultTripleList.add( resultingFacTriple ); //add *
+						if ( !tempFacTypeCat[0].equals("") )
+						{
+							objFacility = new Node ( tempFacTypeCat[0].trim().toLowerCase() );
+					    	resultingFacTriple = new Triple( subjId, facilityAndCategoryPredicate, objFacility );
+					    	resultTripleList.add( resultingFacTriple ); //add *
+						}
 					}
-					if ( !tempFacTypeCat[1].equals("") )
+					if ( tempFacTypeCat[1] != null )
 					{
-						objFacility = new Node ( tempFacTypeCat[1].trim().toLowerCase() );
-				    	resultingFacTriple = new Triple( subjId, facilityAndCategoryPredicate, objFacility );
-				    	resultTripleList.add( resultingFacTriple ); //add *
+						if( !tempFacTypeCat[1].equals("") )
+						{
+							objFacility = new Node ( tempFacTypeCat[1].trim().toLowerCase() );
+					    	resultingFacTriple = new Triple( subjId, facilityAndCategoryPredicate, objFacility );
+					    	resultTripleList.add( resultingFacTriple ); //add *
+						}
 					}
 					
 					//get the start and end dates
@@ -129,10 +135,6 @@ public class Importer
 					//tempDates[1]
 				}
 			}
-		}
-		catch ( ProviderNotFoundException e )
-		{
-			//do nothing
 		}
 		finally
 		{

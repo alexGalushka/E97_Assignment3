@@ -1,9 +1,11 @@
 package cscie97.asn3.squaredesk.renter;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import cscie97.asn1.knowledge.engine.Importer;
 import cscie97.asn1.knowledge.engine.QueryEngine;
 import cscie97.asn1.knowledge.engine.QueryEngineException;
 import cscie97.asn1.knowledge.engine.Triple;
@@ -18,15 +20,22 @@ public class SearchEngine
 	private QueryEngine queryEngine;
 	private SchedulingService schedService;
 	private ProviderService providerService;
+	private Importer importer;
 	
 	public SearchEngine()
 	{
 		queryEngine = new QueryEngine();
 		providerService = ProviderServiceImpl.getInstance();
 		schedService = SchedulingService.getInstance();
+		importer = new Importer( providerService );
+		importer.collectSquareDeskInfoForSearch();
 	}
 	
-	
+	/**
+	 * Serch method, all specified criteria have to satisfy (criteria ANDed together to get result)
+	 * @param criteria
+	 * @return List of Office Spaces satisfied the searched criteria
+	 */
 	public List<OfficeSpace> SearchForOfficeSpace ( Criteria criteria )
 	{
 		List<OfficeSpace> resultedOfficeSpaceList = new LinkedList<OfficeSpace>();
@@ -50,6 +59,11 @@ public class SearchEngine
 				ultimateTripleSetFirst = queryEngine.executeQuery( search );
 			}
 			
+			if ( ultimateTripleSetFirst.isEmpty() || ultimateTripleSetFirst == null )
+			{
+				return null;
+			}
+			
 			// by facility
 			tempFacArray = criteria.getFacility().getTraslatedCategoryAndType();
 			if ( !tempFacArray[1].equals( "" ) )
@@ -61,6 +75,11 @@ public class SearchEngine
 				search = "? has_facility_type_category " + tempFacArray[0].trim().toLowerCase();
 			}
 			ultimateTripleSetLast = queryEngine.executeQuery( search );
+			
+			if ( ultimateTripleSetLast.isEmpty() || ultimateTripleSetLast == null )
+			{
+				return null;
+			}
 			
 			ultimateTripleSetLast.addAll( ultimateTripleSetFirst ); //the most current set
 			
@@ -75,6 +94,11 @@ public class SearchEngine
 				ultimateTripleSetLast.addAll( ultimateTripleSetFirst );
 			}
 			
+			if ( ultimateTripleSetLast.isEmpty() || ultimateTripleSetLast == null)
+			{
+				return null;
+			}
+			
 			// by feature
 			for ( String feat:criteria.getPreferredFeatures() )
 			{
@@ -83,40 +107,47 @@ public class SearchEngine
 				ultimateTripleSetLast.addAll( ultimateTripleSetFirst );
 			}
 			
+			if ( ultimateTripleSetLast.isEmpty() || ultimateTripleSetLast == null )
+			{
+				return null;
+			}
+			
 			// now we have an ultimate set of Triples returned by search, which is going to be passed to 
 			// availability validator
 		}
 		catch (QueryEngineException e)
 		{
-			// TODO Auto-generated catch block
+			return null;
+		}
+
+	    Set<OfficeSpace> tempOfficeSpaces = new HashSet<OfficeSpace>();
+		try
+		{
+		    String id = "";
+		    String[] idArray; // split the provider and office IDs apart
+		    
+			for ( Triple tr: ultimateTripleSetLast )
+			{
+				id =  tr.getSubject().getIdentifier();
+				idArray = id.split("&");
+				tempOfficeSpaces.add( providerService.getOfficeSpace( "" , idArray[1] ) ); // second element of Array is officeSpace ID
+			}
+		}
+		catch (OfficeSpaceNotFoundException e)
+		{
+			return null;
 		}
 		finally
-		{ 
-		    List<OfficeSpace> tempOfficeSpaces = new LinkedList<OfficeSpace>();
-			try
+		{
+			for ( OfficeSpace office:tempOfficeSpaces )
 			{
-			    String id = "";
-				for ( Triple tr: ultimateTripleSetLast )
+				if ( schedService.checkAvailability( office, criteria.getStartDate(), criteria.getEndDate() ) ) 
 				{
-					id =  tr.getSubject().toString();
-					tempOfficeSpaces.add( providerService.getOfficeSpace( "" , id ) );
-				}
-			}
-			catch (OfficeSpaceNotFoundException e)
-			{
-				// TODO Auto-generated catch block
-			}
-			finally
-			{
-				for ( OfficeSpace office:tempOfficeSpaces )
-				{
-					if ( schedService.checkAvailability( office, criteria.getStartDate(), criteria.getEndDate() ) ) 
-					{
-						resultedOfficeSpaceList.add( office );
-					}
+					resultedOfficeSpaceList.add( office );
 				}
 			}
 		}
+		
 		return resultedOfficeSpaceList;
 	}
 

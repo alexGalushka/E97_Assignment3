@@ -1,5 +1,7 @@
 package cscie97.asn3.squaredesk.renter;
 
+
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,16 +9,27 @@ import java.util.List;
 import java.util.Map;
 
 import cscie97.asn2.squaredesk.provider.OfficeSpace;
-import cscie97.asn2.squaredesk.provider.Profile;
-import cscie97.asn2.squaredesk.provider.Rating;
+import cscie97.common.squaredesk.Account;
+import cscie97.common.squaredesk.ContactInfo;
+import cscie97.common.squaredesk.Rating;
+import cscie97.common.squaredesk.Profile;
+import cscie97.common.squaredesk.Gender;
 
 public class Renter implements Profile
 {
-	public enum Gender {MALE, FEMALE};
+	
 	
 	private Criteria criteria;
 	private Gender gender;
 	private String guid;
+	/** The picture. */
+	private URI picture;
+	
+	/** The contact. */
+	private ContactInfo contact;
+	
+	/** The account. */
+	private Account account;
 	
 	/** The renter ratings map. */
 	private Map<String, Rating> ratingsMap;
@@ -39,16 +52,15 @@ public class Renter implements Profile
 		return guid;
 	}
 
-
 	/**
-	 * mutator methos
-	 * @param guid the guid to set
+	 * mutator method for guid attribute.
+	 *
+	 * @return String
 	 */
-	public void setGuid(String guid)
+	public void setGuid ( String guid )
 	{
 		this.guid = guid;
 	}
-
 
 	/**
 	 * @return the criteria
@@ -159,6 +171,60 @@ public class Renter implements Profile
 		// deferred to next release
 		
 	}
-	
-	
+
+
+	/**
+	 * @return the picture
+	 */
+	public URI getPicture()
+	{
+		return picture;
+	}
+
+
+	/**
+	 * @return the contact
+	 */
+	public ContactInfo getContact() 
+	{
+		return contact;
+	}
+
+
+	/**
+	 * @return the account
+	 */
+	public Account getAccount() 
+	{
+		return account;
+	}
+
+
+	/**
+	 * @param picture the picture to set
+	 */
+	public void setPicture(URI picture) 
+	{
+		this.picture = picture;
+	}
+
+
+	/**
+	 * @param contact the contact to set
+	 */
+	public void setContact(ContactInfo contact) 
+	{
+		this.contact = contact;
+	}
+
+
+	/**
+	 * @param account the account to set
+	 */
+	public void setAccount(Account account)
+	{
+		this.account = account;
+	}
+
+
 }

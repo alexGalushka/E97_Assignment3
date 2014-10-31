@@ -3,7 +3,8 @@ package cscie97.asn3.squaredesk.renter;
 import java.util.Date;
 
 import cscie97.asn2.squaredesk.provider.OfficeSpace;
-import cscie97.asn2.squaredesk.provider.Rate;
+import cscie97.common.squaredesk.Rate;
+
 
 public class Booking
 {
@@ -12,11 +13,11 @@ public class Booking
 	private Rate rate;
 	private Date startDate;
 	private Date endDate;
-	private boolean paymentStatus;
+	private PaymentStatus paymentStatus;
 	private String period;
 	
 	public Booking(Renter renter, OfficeSpace officespace, Rate rate,
-		       Date startDate, Date endDate, boolean paymentStatus, String period)
+		       Date startDate, Date endDate, PaymentStatus paymentStatus, String period)
 	{
 		this.renter = renter;
 		this.officespace = officespace;
@@ -34,7 +35,7 @@ public class Booking
 		this.rate = null;
 		this.startDate = null;
 		this.endDate = null;
-		this.paymentStatus = false;
+		this.paymentStatus = PaymentStatus.DUE;
 		this.period = "";
 	}
 	
@@ -42,14 +43,16 @@ public class Booking
 	/**
 	 * @return the period
 	 */
-	public String getPeriod() {
+	public String getPeriod()
+	{
 		return period;
 	}
 
 	/**
 	 * @param period the period to set
 	 */
-	public void setPeriod(String period) {
+	public void setPeriod(String period)
+	{
 		this.period = period;
 	}
 
@@ -57,73 +60,85 @@ public class Booking
 	/**
 	 * @return the renter
 	 */
-	public Renter getRenter() {
+	public Renter getRenter()
+	{
 		return renter;
 	}
 	/**
 	 * @param renter the renter to set
 	 */
-	public void setRenter(Renter renter) {
+	public void setRenter(Renter renter)
+	{
 		this.renter = renter;
 	}
 	/**
 	 * @return the officespace
 	 */
-	public OfficeSpace getOfficespace() {
+	public OfficeSpace getOfficespace()
+	{
 		return officespace;
 	}
 	/**
 	 * @param officespace the officespace to set
 	 */
-	public void setOfficespace(OfficeSpace officespace) {
+	public void setOfficespace(OfficeSpace officespace) 
+	{
 		this.officespace = officespace;
 	}
 	/**
 	 * @return the rate
 	 */
-	public Rate getRate() {
+	public Rate getRate() 
+	{
 		return rate;
 	}
 	/**
 	 * @param rate the rate to set
 	 */
-	public void setRate(Rate rate) {
+	public void setRate(Rate rate) 
+	{
 		this.rate = rate;
 	}
 	/**
 	 * @return the startDate
 	 */
-	public Date getStartDate() {
+	public Date getStartDate()
+	{
 		return startDate;
 	}
 	/**
 	 * @param startDate the startDate to set
 	 */
-	public void setStartDate(Date startDate) {
+	public void setStartDate(Date startDate) 
+	{
 		this.startDate = startDate;
 	}
 	/**
 	 * @return the endDate
 	 */
-	public Date getEndDate() {
+	public Date getEndDate()
+	{
 		return endDate;
 	}
 	/**
 	 * @param endDate the endDate to set
 	 */
-	public void setEndDate(Date endDate) {
+	public void setEndDate(Date endDate) 
+	{
 		this.endDate = endDate;
 	}
 	/**
 	 * @return the paymentStatus
 	 */
-	public boolean isPaymentStatus() {
+	public PaymentStatus getPaymentStatus()
+	{
 		return paymentStatus;
 	}
 	/**
 	 * @param paymentStatus the paymentStatus to set
 	 */
-	public void setPaymentStatus(boolean paymentStatus) {
+	public void setPaymentStatus(PaymentStatus paymentStatus)
+	{
 		this.paymentStatus = paymentStatus;
 	}
 	

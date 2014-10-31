@@ -8,12 +8,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cscie97.common.squaredesk.AccessException;
+import cscie97.common.squaredesk.Profile;
+import cscie97.common.squaredesk.ProfileAlreadyExistsException;
+import cscie97.common.squaredesk.ProfileNotFoundException;
+import cscie97.common.squaredesk.Rating;
+import cscie97.common.squaredesk.RatingAlreadyExistsException;
+import cscie97.common.squaredesk.RatingNotFoundExcepion;
+import cscie97.common.squaredesk.User;
+import cscie97.common.squaredesk.UserBucket;
+
 
 public class ProviderServiceImpl implements ProviderService
 {
 
-	/** The office provider map. */
-	private Map<String, User> providerMap;
+	private UserBucket userBucket;
 	
 	/** The office space map. */
 	private Map<String, OfficeSpace> officeSpaceMap;
@@ -23,9 +32,9 @@ public class ProviderServiceImpl implements ProviderService
 	
     private ProviderServiceImpl ()
     {
-		providerMap = new HashMap<String, User>();
 		officeSpaceMap = new HashMap<String, OfficeSpace>();
 		officeSpaceMapByProvider = new HashMap<String, List<OfficeSpace>>();
+		userBucket = UserBucket.getInstance();
     }
      
     
@@ -52,42 +61,46 @@ public class ProviderServiceImpl implements ProviderService
 	 *
 	 * @param authToken the auth token
 	 * @param provider the provider
+	 * @throws ProfileAlreadyExistsException 
 	 * @throws ProviderAlreadyExistsException the provider already exists exception
-	 * @throws ProviderNotFoundException 
+	 * @throws ProfileNotFoundException 
 	 */
-	public void createProvider ( String authToken, User provider) throws ProviderAlreadyExistsException, ProviderNotFoundException
+	public String createProvider ( String authToken, Profile  profile ) throws ProfileAlreadyExistsException 
 	{
-		String providerId = provider.getProfile("provider").getGuid();
-		if ( !this.providerMap.containsKey( providerId ) )
-		{
-			this.providerMap.put ( providerId, provider );
-		}
-		else
-		{
-			throw new ProviderAlreadyExistsException();
-		}
+		User user = new User();
+		String userId = user.getGuid();
+		profile.setGuid( userId );
+		user.setAccount( profile.getAccount() );
+		user.setContact( profile.getContact() );
+		user.setPicture( profile.getPicture() );
+		user.addProfile( "provider" , profile );
+		userBucket.createUser( user );
+		return userId;
 	}
 	
 	/**
 	 * Returns provider per passed in providerId,
-	 * if there is no match – throws ProviderNotFoundException .
+	 * if there is no match – throws ProfileNotFoundException .
 	 *
 	 * @param authToken the auth token
 	 * @param providerId the provider id
 	 * @return the provider
-	 * @throws ProviderNotFoundException the provider not found exception
+	 * @throws ProfileNotFoundException the provider not found exception
 	 */
-	public User getProvider( String authToken, String providerId ) throws ProviderNotFoundException
+	public Profile getProvider( String authToken, String providerId ) throws ProfileNotFoundException
 	{
-		if ( this.providerMap.containsKey( providerId ) )
+		User user = null;
+		Profile profile = null;
+		user = userBucket.getUser( providerId );
+		if ( user == null )
 		{
-			return providerMap.get( providerId );
+			throw new ProfileNotFoundException ( "no user profile found" );
 		}
 		else
 		{
-			throw new ProviderNotFoundException();
+			profile = user.getProfile( "provider" );
 		}
-		
+		return profile;
 	}
 	
 	/**
@@ -96,75 +109,99 @@ public class ProviderServiceImpl implements ProviderService
 	 * @param authToken the auth token
 	 * @return List<OfficeProvider>
 	 */
-	public List<User> getProviderList ( String authToken )
+	public List<Profile> getProviderList ( String authToken )
 	{
+		List<Profile> result = new LinkedList<Profile>();
+		Map<String, User> userBucketMap = userBucket.getUserMap();
 		Collection<User> tempSet;
-		tempSet = providerMap.values();
-		List<User> officeProviderGuidList = new ArrayList<User> ( tempSet );
-		return officeProviderGuidList;
+		tempSet = userBucketMap.values();	
+		for (User u : tempSet )
+		{
+			try
+			{
+				result.add( u.getProfile( "provider" ) );
+			} 
+			catch (ProfileNotFoundException e)
+			{
+				// continue through the loop, this exception is not critical here
+			}
+		}
+		
+		return result;
 	}
 	
 	/**
 	 * Updates the provider, new Provider instance has to be passed in.
-	 * If providerId not found, throws ProviderNotFoundException.
+	 * If providerId not found, throws ProfileNotFoundException.
 	 *
 	 * @param authToken the auth token
 	 * @param providerId the provider id
 	 * @param provider the provider
-	 * @throws ProviderNotFoundException the provider not found exception
+	 * @throws ProfileNotFoundException the provider not found exception
 	 */
-	public void updateProvider ( String authToken, User provider ) throws ProviderNotFoundException
+	public void updateProvider ( String authToken, Profile provider ) throws ProfileNotFoundException
 	{
+		User user = null;
 		String providerId = provider.getGuid();
-		if ( this.providerMap.containsKey( providerId ) )
+		user = userBucket.getUser( providerId );
+		if ( user != null )
 		{
-			providerMap.put( providerId, provider );
+			user.updateProfile( "provider", provider );
+			userBucket.updateUser( providerId, user );
 		}
 		else
 		{
-			throw new ProviderNotFoundException();
+			throw new ProfileNotFoundException();
 		}
 	}
 	
 	/**
 	 * Deleted the provider.
-	 * If providerId not found, throws ProviderNotFoundException.
+	 * If providerId not found, throws ProfileNotFoundException.
 	 *
 	 * @param authToken the auth token
 	 * @param providerId the provider id
-	 * @throws ProviderNotFoundException the provider not found exception
+	 * @throws ProfileNotFoundException the provider not found exception
+	 * @throws OfficeSpaceNotFoundException 
 	 */
-	public void deleteProvider ( String authToken, String providerId ) throws ProviderNotFoundException
+	public void deleteProvider ( String authToken, String providerId ) throws ProfileNotFoundException, OfficeSpaceNotFoundException
 	{
-		if ( this.providerMap.containsKey( providerId ) )
+		User user = null;
+		user = userBucket.getUser( providerId );
+		if ( user != null )
 		{
-			providerMap.remove( providerId );
+			for (String id : user.getProfile( "provider" ).getOfficeSpacesIds() )
+			{
+				removeOfficeSpace( "", providerId, id );
+			}
+			user.updateProfile( "provider", null );
+			userBucket.updateUser( providerId, user );
+			
 		}
 		else
 		{
-			throw new ProviderNotFoundException();
+			throw new ProfileNotFoundException();
 		}
 	}
 	
 	/**
 	 * Rate the provider. Rating is an integer from 0 to 5. The rating value is added to officeProviderRatingsMap.
 	 * if it is found throw RatingAlreadyExistsException. ProviderId is checked as well if it's not found
-	 *  - ProviderNotFoundException is thrown 
+	 *  - ProfileNotFoundException is thrown 
 	 *
 	 * @param authToken the auth token
 	 * @param providerId the provider id
 	 * @param renterId the renter id
 	 * @param rating the rating
 	 * @throws RatingAlreadyExistsException the rating already exists exception
-	 * @throws ProviderNotFoundException the provider not found exception
+	 * @throws ProfileNotFoundException the provider not found exception
 	 */
 	public void rateProvider ( String authToken, String providerId,
-			                   String renterId , Rating rating ) throws RatingAlreadyExistsException, ProviderNotFoundException 
+			                   String renterId , Rating rating ) throws RatingAlreadyExistsException, ProfileNotFoundException 
 	{
-		if ( providerMap.containsKey( providerId ) )
+		if ( userBucket.getUserMap().containsKey( providerId ) )
 		{
-			
-			User tempUser = providerMap.get( providerId );
+			User tempUser = userBucket.getUser( providerId );
 			Profile tempProvider = tempUser.getProfile("provider");
 			Map<String, Rating>  tempProviderRatingMap = tempProvider.getRatingsMap();
 			if ( !tempProviderRatingMap.containsKey( renterId ) )
@@ -172,7 +209,7 @@ public class ProviderServiceImpl implements ProviderService
 				tempProviderRatingMap.put( renterId, rating );
 				tempProvider.setRatingsMap ( tempProviderRatingMap );
 				tempUser.updateProfile("provider", tempProvider);
-				providerMap.put( providerId, tempUser );
+				userBucket.updateUser( providerId, tempUser );
 			}
 			else
 			{
@@ -182,27 +219,27 @@ public class ProviderServiceImpl implements ProviderService
 		}
 		else
 		{
-			throw new ProviderNotFoundException();
+			throw new ProfileNotFoundException();
 		}
 	}
 	
 	/**
 	 * The Rating correspondent to renterId is to be removed from officeProviderRatingMap within the officeSpaceMap,
-	 * if office space id is not found - ProviderNotFoundException is thrown;
+	 * if office space id is not found - ProfileNotFoundException is thrown;
 	 * if renterId is not found - RatingNotFoundExcepion is thrown.
 	 *
 	 * @param authToken the auth token
 	 * @param providerId the provider id
 	 * @param renterId the renter id
 	 * @throws RatingNotFoundExcepion the rating not found excepion
-	 * @throws ProviderNotFoundException the provider not found exception
+	 * @throws ProfileNotFoundException the provider not found exception
 	 */
 	public void removeProviderRating ( String authToken, String providerId,
-			                           String renterId) throws RatingNotFoundExcepion, ProviderNotFoundException
+			                           String renterId) throws RatingNotFoundExcepion, ProfileNotFoundException
 	{
-		if ( providerMap.containsKey( providerId ) )
+		if (userBucket.getUserMap().containsKey( providerId ) )
 		{
-            User tempUser = providerMap.get( providerId );
+            User tempUser = userBucket.getUser( providerId );
             Profile tempProvider = tempUser.getProfile("provider");
             Map<String, Rating> tempProviderRatingMap = tempProvider.getRatingsMap();
 			if ( tempProviderRatingMap.containsKey( renterId ) )
@@ -215,11 +252,11 @@ public class ProviderServiceImpl implements ProviderService
 			}
 			tempProvider.setRatingsMap ( tempProviderRatingMap );
 			tempUser.updateProfile("provider", tempProvider);
-			providerMap.put( providerId, tempUser );
+			userBucket.updateUser( providerId, tempUser );
 		}
 		else
 		{
-			throw new ProviderNotFoundException();
+			throw new ProfileNotFoundException();
 		}
 	}
 	
@@ -230,13 +267,13 @@ public class ProviderServiceImpl implements ProviderService
 	 * @param providerId the provider id
 	 * @return the rating list
 	 * @throws OfficeSpaceNotFoundException the office space not found exception
-	 * @throws ProviderNotFoundException 
+	 * @throws ProfileNotFoundException 
 	 */
-	public List<Rating> getRatingList ( String authToken, String providerId ) throws OfficeSpaceNotFoundException, ProviderNotFoundException
+	public List<Rating> getRatingList ( String authToken, String providerId ) throws OfficeSpaceNotFoundException, ProfileNotFoundException
 	{
-		if ( providerMap.containsKey( providerId ) )
+		if ( userBucket.getUserMap().containsKey( providerId ) )
 		{
-			User tempUser = providerMap.get( providerId );
+			User tempUser = userBucket.getUser( providerId );
 			List<Rating> tempProviderRatingList;
 			tempProviderRatingList = tempUser.getProfile("provider").getAllRatings();
 			return tempProviderRatingList;

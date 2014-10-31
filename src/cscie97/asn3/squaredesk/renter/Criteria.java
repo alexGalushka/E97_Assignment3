@@ -3,8 +3,8 @@ package cscie97.asn3.squaredesk.renter;
 import java.util.Date;
 import java.util.List;
 
-import cscie97.asn2.squaredesk.provider.Facility;
-import cscie97.asn2.squaredesk.provider.Location;
+import cscie97.common.squaredesk.Facility;
+import cscie97.common.squaredesk.Location;
 
 public class Criteria
 {

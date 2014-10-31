@@ -5,6 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cscie97.common.squaredesk.Capacity;
+import cscie97.common.squaredesk.Facility;
+import cscie97.common.squaredesk.Features;
+import cscie97.common.squaredesk.GuidGenerator;
+import cscie97.common.squaredesk.Image;
+import cscie97.common.squaredesk.Location;
+import cscie97.common.squaredesk.Rate;
+import cscie97.common.squaredesk.Rating;
+import cscie97.common.squaredesk.RatingNotFoundExcepion;
+
 
 /**
  * The Class OfficeSpace.
@@ -60,7 +70,7 @@ public class OfficeSpace
 	 */
 	public OfficeSpace ( List<String> commonAccess, Capacity capacity, Facility facility,
 			            Features features, List<Image> images, Location location,
-			            List<Rate> rates, Map<String, Rating> ratings, String name, String officeSpaceGuid )
+			            List<Rate> rates, Map<String, Rating> ratings, String name )
 	{
 		this.capacity = capacity;
 		this.commonAccess = commonAccess;
@@ -71,7 +81,7 @@ public class OfficeSpace
 		this.name = name;
 		this.rates = rates;
 		this.ratings = ratings;
-		this.officeSpaceGuid = officeSpaceGuid;
+		this.officeSpaceGuid = GuidGenerator.getInstance().generateProviderGuid();;
 	}
 	
 	
@@ -87,7 +97,7 @@ public class OfficeSpace
 		this.images = new ArrayList<Image>();
 		this.location = new Location(null, null, null);
 		this.name = "";
-		this.officeSpaceGuid = "";
+		this.officeSpaceGuid = GuidGenerator.getInstance().generateProviderGuid();
 		this.rates =  new ArrayList<Rate>();
 		this.ratings = new HashMap<String, Rating>();
 	}
@@ -121,15 +131,6 @@ public class OfficeSpace
 		return this.officeSpaceGuid;
 	}
 	
-	/**
-	 * mutator method for officeSpaceGuid attribute.
-	 *
-	 * @param officeSpaceGuid the new office space guid
-	 */
-	public void setOfficeSpaceGuid ( String officeSpaceGuid )
-	{
-		this.officeSpaceGuid = officeSpaceGuid;
-	}
 	
 	/**
 	 * mutator method for commonAccess attribute.
