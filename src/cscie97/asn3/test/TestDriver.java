@@ -25,6 +25,7 @@ import cscie97.common.squaredesk.Facility;
 import cscie97.common.squaredesk.Profile;
 import cscie97.common.squaredesk.ProfileAlreadyExistsException;
 import cscie97.common.squaredesk.ProfileNotFoundException;
+import cscie97.asn2.squaredesk.provider.OfficeSpaceNotFoundException;
 import cscie97.asn2.squaredesk.provider.Provider;
 import cscie97.asn2.squaredesk.provider.ProviderServiceImpl;
 import cscie97.asn2.squaredesk.provider.OfficeSpace;
@@ -288,11 +289,13 @@ public class TestDriver
         String renterId;
         renterId = uutOfficeRenterService.createRenter ( "" , uutRenter );
         
+        System.out.println ( "***RENTER SERVICE TESTING***" );
         // TEST
         boolean testStatus;
         Rate rate = new Rate();
         schs = SchedulingService.getInstance() ; 
         
+        System.out.println ( "\n--Testing Booking"  );
         try
         {
         	testStatus = uutOfficeRenterService.bookOfficeSpace("", uutRenter, rate, PaymentStatus.DUE);
@@ -348,7 +351,8 @@ public class TestDriver
         	}
         	else
         	{
-        		System.out.println ("\nThe new Criteria has returned the OfficeSpace which has been booked by Katie\n"
+        		System.out.println ( "\n--Testing Scheduling Service"  );
+        		System.out.println ("The new Criteria has returned the OfficeSpace which has been booked by Katie\n"
         				            + "Let's Display the Booked Office Space ID");
         		
         		Set<Booking> bookingSet = schs.listBookings();
@@ -372,7 +376,56 @@ public class TestDriver
 			System.out.println ( errorMessage );
 		}
 		
+		// Now let's change the provider information (violating search criteria), to make sure that synchronization between ProviderService implementation
+        // and Knowledge graph works. This time booking should return false.
+        
+        System.out.println ( "--Testing synch between ProviderServiceImpl and KnowledgeGraph..."  );
+		uutFeaturesList.add( "Xbox" );
+		uutFeaturesList.add( "Laptop" );
+		uutFeaturesList.add( "Lamp" );
+		uutFeaturesList.add( "Snacks" );
+		uutFeaturesList.add( "Guitar" );
+		uutFeatures = new Features ( uutFeaturesList );
+		uutOfficeSpace.setFeatures( uutFeatures );
 		
+		try 
+		{
+			uutOfficeProviderService.updateOfficeSpace("", providerId, uutOfficeSpace);
+		} 
+		catch (OfficeSpaceNotFoundException e1)
+		{
+			String errorMessage = "\nERROR: Booking Exception has occurred";
+			System.out.println ( errorMessage );
+		}
+		finally
+		{
+			System.out.println ( "OfficeSpace features have been updated" );
+		}
+		
+		boolean testStatus1 = true;
+		try 
+		{
+			testStatus1 = uutOfficeRenterService.bookOfficeSpace("", uutRenter, rate, PaymentStatus.DUE);
+		} 
+		catch ( BookingException e1 ) 
+		{
+			String errorMessage = "\nERROR: Booking Exception has occurred";
+			System.out.println ( errorMessage );
+		}
+		finally
+		{
+			System.out.println ( "Provider has been updated" );
+		}
+    	if ( !testStatus1 )
+    	{
+    		System.out.println ( "Synch is working. Updated Provider's Info doesn't match Renter's search criteria" );
+    	}
+    	else
+    	{
+    		System.out.println ( "\nSynch is not working" );
+    	}
+        
+    	System.out.println ( "\n***REGRESSION TESTING***\n" );
 		// TESTS:
 		Collection<Rating> ratingList = null;
 		Collection<Rate> rateList = null;

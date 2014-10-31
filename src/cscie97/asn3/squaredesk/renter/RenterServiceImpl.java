@@ -30,7 +30,6 @@ public class RenterServiceImpl implements RenterService
 	
 	private SchedulingService schedService;
 	
-	
     private RenterServiceImpl ()
     {
     	setRenterMap(new HashMap<String, User>());

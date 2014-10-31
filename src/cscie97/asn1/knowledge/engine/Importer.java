@@ -6,9 +6,10 @@ import java.util.List;
 import cscie97.common.squaredesk.Features;
 import cscie97.asn2.squaredesk.provider.OfficeSpace;
 import cscie97.asn2.squaredesk.provider.ProviderService;
+import cscie97.asn3.squaredesk.renter.Observer;
 import cscie97.common.squaredesk.Profile;
 
-public class Importer
+public class Importer implements Observer
 {
 	private List<Profile> provUserList;
 
@@ -143,11 +144,14 @@ public class Importer
 	}
 	
 	
-	// very important method
+	/**
+	 * Observer synchronization method
+	 */
+	
 	public void syncUpdate()
 	{
 		collectSquareDeskInfoForSearch();
-		//add smth else? - of course!!!
 	}
+
 
 }

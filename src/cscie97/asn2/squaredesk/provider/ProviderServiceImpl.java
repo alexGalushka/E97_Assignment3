@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cscie97.asn3.squaredesk.renter.Observer;
+import cscie97.asn3.squaredesk.renter.Subject;
 import cscie97.common.squaredesk.AccessException;
 import cscie97.common.squaredesk.Profile;
 import cscie97.common.squaredesk.ProfileAlreadyExistsException;
@@ -19,22 +21,24 @@ import cscie97.common.squaredesk.User;
 import cscie97.common.squaredesk.UserBucket;
 
 
-public class ProviderServiceImpl implements ProviderService
+public class ProviderServiceImpl implements ProviderService, Subject
 {
 
 	private UserBucket userBucket;
 	
 	/** The office space map. */
-	private Map<String, OfficeSpace> officeSpaceMap;
-	
+	private Map<String, OfficeSpace> officeSpaceMap;	
 	private Map<String, List<OfficeSpace>> officeSpaceMapByProvider;
 	private static ProviderServiceImpl _obj;
+	private ArrayList<Observer> observers;
 	
     private ProviderServiceImpl ()
     {
 		officeSpaceMap = new HashMap<String, OfficeSpace>();
 		officeSpaceMapByProvider = new HashMap<String, List<OfficeSpace>>();
 		userBucket = UserBucket.getInstance();
+		observers = new ArrayList<Observer>();
+		notifyObservers();
     }
      
     
@@ -75,6 +79,7 @@ public class ProviderServiceImpl implements ProviderService
 		user.setPicture( profile.getPicture() );
 		user.addProfile( "provider" , profile );
 		userBucket.createUser( user );
+		notifyObservers();
 		return userId;
 	}
 	
@@ -153,6 +158,7 @@ public class ProviderServiceImpl implements ProviderService
 		{
 			throw new ProfileNotFoundException();
 		}
+		notifyObservers();
 	}
 	
 	/**
@@ -176,12 +182,13 @@ public class ProviderServiceImpl implements ProviderService
 			}
 			user.updateProfile( "provider", null );
 			userBucket.updateUser( providerId, user );
-			
+
 		}
 		else
 		{
 			throw new ProfileNotFoundException();
 		}
+		notifyObservers();
 	}
 	
 	/**
@@ -221,6 +228,7 @@ public class ProviderServiceImpl implements ProviderService
 		{
 			throw new ProfileNotFoundException();
 		}
+		notifyObservers();
 	}
 	
 	/**
@@ -253,6 +261,7 @@ public class ProviderServiceImpl implements ProviderService
 			tempProvider.setRatingsMap ( tempProviderRatingMap );
 			tempUser.updateProfile("provider", tempProvider);
 			userBucket.updateUser( providerId, tempUser );
+			notifyObservers();
 		}
 		else
 		{
@@ -325,7 +334,7 @@ public class ProviderServiceImpl implements ProviderService
 			tempList.add( officeSpace );
 			officeSpaceMapByProvider.put( providerId, tempList );
 		}
-		
+		notifyObservers();
 	}
 	
 	/**
@@ -407,6 +416,7 @@ public class ProviderServiceImpl implements ProviderService
 		{
 			throw new OfficeSpaceNotFoundException();
 		}
+		notifyObservers();
 	}
 	
 	/**
@@ -443,7 +453,7 @@ public class ProviderServiceImpl implements ProviderService
 		{
 			throw new OfficeSpaceNotFoundException();
 		}
-
+		notifyObservers();
 	}	
 	
 	/**
@@ -482,6 +492,7 @@ public class ProviderServiceImpl implements ProviderService
 		{
 			throw new OfficeSpaceNotFoundException();
 		}
+		notifyObservers();
 	}
 	
 	/**
@@ -519,6 +530,7 @@ public class ProviderServiceImpl implements ProviderService
 		{
 			throw new OfficeSpaceNotFoundException();
 		}
+		notifyObservers();
     }
 	
 	
@@ -545,6 +557,36 @@ public class ProviderServiceImpl implements ProviderService
 		{
 			throw new OfficeSpaceNotFoundException();
 		}
+		
+	}
+
+    /**
+     * Observer's pattern method to add Observer to the list of Observers
+     */
+	public void registerObserver(Observer observer)
+	{
+		observers.add(observer);
+		
+	}
+
+    /**
+     * Observer's pattern method to remove Observer from the list of Observers
+     */
+	public void removeObserver(Observer observer) 
+	{
+		observers.remove(observer);
+		
+	}
+
+    /**
+     * Observer's pattern method to notify all the registered observers
+     */
+	public void notifyObservers() 
+	{
+		for (Observer ob : observers)
+		{
+            ob.syncUpdate();
+        }
 	}
     	 
 }

@@ -2,6 +2,7 @@ package cscie97.asn2.squaredesk.provider;
 
 import java.util.List;
 
+import cscie97.asn3.squaredesk.renter.Observer;
 import cscie97.common.squaredesk.AccessException;
 import cscie97.common.squaredesk.Profile;
 import cscie97.common.squaredesk.ProfileAlreadyExistsException;
@@ -207,6 +208,22 @@ public interface ProviderService
 	 * @throws OfficeSpaceNotFoundException the office space not found exception
 	 */
 	public List<Rating> getOfficeSpaceRatingList  ( String authToken, String officeSpaceId ) throws OfficeSpaceNotFoundException;
+    
+	// artifacts required for Subject for Observer pattern
+    /**
+     * Observer's pattern method to add Observer to the list of Observers
+     */
+	public void registerObserver(Observer observer);
+
+    /**
+     * Observer's pattern method to remove Observer from the list of Observers
+     */
+	public void removeObserver(Observer observer);
+
+    /**
+     * Observer's pattern method to notify all the registered observers
+     */
+	public void notifyObservers();
 
 	
 }

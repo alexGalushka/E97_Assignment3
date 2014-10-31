@@ -20,15 +20,16 @@ public class SearchEngine
 	private QueryEngine queryEngine;
 	private SchedulingService schedService;
 	private ProviderService providerService;
-	private Importer importer;
+	private Observer observer;
 	
 	public SearchEngine()
 	{
 		queryEngine = new QueryEngine();
 		providerService = ProviderServiceImpl.getInstance();
 		schedService = SchedulingService.getInstance();
-		importer = new Importer( providerService );
-		importer.collectSquareDeskInfoForSearch();
+		observer = new Importer(providerService);
+		observer.syncUpdate();
+		providerService.registerObserver( observer );
 	}
 	
 	/**
