@@ -190,9 +190,12 @@ public class SchedulingService
 		{
 		  Entry<String, List<Booking>> thisEntry = entries.next();
 		  tempBookingList = thisEntry.getValue();
-		  for (Booking b: tempBookingList)
+		  if ( tempBookingList != null)
 		  {
-			  bookingSet.add(b);
+			  for (Booking b: tempBookingList)
+			  {
+				  bookingSet.add(b);
+			  }
 		  }
 		}
 		return bookingSet;

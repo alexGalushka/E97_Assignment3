@@ -7,8 +7,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import cscie97.common.squaredesk.AccessException;
 import cscie97.common.squaredesk.ContactInfo;
@@ -66,7 +68,7 @@ public class TestDriver
 		RenterServiceImpl uutOfficeRenterService = null;
 		Criteria uutCriteria  = null;
 		Booking uutBooking = null;
-		Renter uutRenter = null;
+		Profile uutRenter = null;
 		
 		Account uutAccount;
 		Address uutAddress;
@@ -82,8 +84,7 @@ public class TestDriver
 		Rating uutRating1;
 		Rating uutRating2;
 		
-		@SuppressWarnings("unused")
-		//SchedulingService schs = new SchedulingService() ; 
+		SchedulingService schs; 
 		
         // * Data to Office Space * //
 			
@@ -281,17 +282,24 @@ public class TestDriver
         uutRenter.setPicture(profilePictureUri);
         uutRenter.setRatingsMap(uutRatingMap);
         
+        // GET RenterServiceImpl instance
+        uutOfficeRenterService = RenterServiceImpl.getInstance();
+        
+        String renterId;
+        renterId = uutOfficeRenterService.createRenter ( "" , uutRenter );
+        
         // TEST
         boolean testStatus;
         Rate rate = new Rate();
-        uutOfficeRenterService = RenterServiceImpl.getInstance();
+        schs = SchedulingService.getInstance() ; 
+        
         try
         {
         	testStatus = uutOfficeRenterService.bookOfficeSpace("", uutRenter, rate, PaymentStatus.DUE);
         	if (!testStatus)
         	{
         		System.out.println ( "As expected Renter Katie's criteria doesn't match information provided by Office Space provider Fred\n"
-        				           + "We need to update Katie's criteria" );
+        				           + "Let's update Katie's search criteria" );
         	}
 			
 		}
@@ -303,8 +311,66 @@ public class TestDriver
 		}
         
         // update search Criteria
-        
-        
+        uutFeaturesList = new LinkedList<String>();
+		uutFeaturesList.add( "Whiteboard" );
+		uutFeaturesList.add( "WIFI" );
+		uutFeaturesList.add( "Windows" );
+		uutFeaturesList.add( "Parking" );
+		uutFeaturesList.add( "Cofee" );
+		
+        latitude = (float) 27.175015;
+        longitude = (float) 78.042155;
+		uutLocation = new Location(uutAddress, longitude, latitude);
+		
+		try 
+		{
+			uutRenter =  uutOfficeRenterService.getRenter("", renterId);
+			uutCriteria = uutRenter.getCriteria();
+			uutCriteria.setPreferredFeatures(uutFeaturesList);
+			uutCriteria.setLocation(uutLocation);
+			uutRenter.setCriteria(uutCriteria);
+			uutOfficeRenterService.updateRenter("", uutRenter);
+		} 
+		catch (ProfileNotFoundException e1)
+		{
+			
+			String errorMessage = "ERROR: Booking Exception has occurred";
+			System.out.println ( errorMessage );
+		}
+		
+        try
+        {
+        	testStatus = uutOfficeRenterService.bookOfficeSpace("", uutRenter, rate, PaymentStatus.DUE);
+        	if (!testStatus)
+        	{
+        		System.out.println ( "As expected Renter Katie's criteria doesn't match information provided by Office Space provider Fred\n"
+        				           + "Let's update Katie's search criteria" );
+        	}
+        	else
+        	{
+        		System.out.println ("\nThe new Criteria has returned the OfficeSpace which has been booked by Katie\n"
+        				            + "Let's Display the Booked Office Space ID");
+        		
+        		Set<Booking> bookingSet = schs.listBookings();
+        		if ( !bookingSet.isEmpty() )
+        		{
+        			String out;
+        			for (Booking b : bookingSet)
+        			{
+        				 out = b.getOfficespace().getOfficeSpaceGuid();
+        				 System.out.println ( out +"\n");
+        			}
+        		}
+        		
+        	}
+			
+		}
+        catch (BookingException e1) 
+        {
+
+			String errorMessage = "ERROR: Booking Exception has occurred";
+			System.out.println ( errorMessage );
+		}
 		
 		
 		// TESTS:
@@ -363,7 +429,7 @@ public class TestDriver
 						dailyRate = r.getRate();
 					}
 				}
-				//consider only business days, so the normalization multiplier for dayly rate is 5 
+				//consider only business days, so the normalization multiplier for daily rate is 5 
 				if ( weeklyRate < dailyRate*5 )
 				{
 					printOutMsg = "for 5 business days weekly rate is cheaper!";

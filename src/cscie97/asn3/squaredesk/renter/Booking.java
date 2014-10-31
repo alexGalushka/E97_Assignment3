@@ -3,12 +3,13 @@ package cscie97.asn3.squaredesk.renter;
 import java.util.Date;
 
 import cscie97.asn2.squaredesk.provider.OfficeSpace;
+import cscie97.common.squaredesk.Profile;
 import cscie97.common.squaredesk.Rate;
 
 
 public class Booking
 {
-	private Renter renter;
+	private Profile renter;
 	private OfficeSpace officespace;
 	private Rate rate;
 	private Date startDate;
@@ -16,10 +17,10 @@ public class Booking
 	private PaymentStatus paymentStatus;
 	private String period;
 	
-	public Booking(Renter renter, OfficeSpace officespace, Rate rate,
+	public Booking(Profile uutRenter, OfficeSpace officespace, Rate rate,
 		       Date startDate, Date endDate, PaymentStatus paymentStatus, String period)
 	{
-		this.renter = renter;
+		this.renter = uutRenter;
 		this.officespace = officespace;
 		this.rate = rate;
 		this.startDate = startDate;
@@ -60,7 +61,7 @@ public class Booking
 	/**
 	 * @return the renter
 	 */
-	public Renter getRenter()
+	public Profile getRenter()
 	{
 		return renter;
 	}

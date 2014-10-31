@@ -7,7 +7,6 @@ import cscie97.common.squaredesk.Features;
 import cscie97.asn2.squaredesk.provider.OfficeSpace;
 import cscie97.asn2.squaredesk.provider.ProviderService;
 import cscie97.common.squaredesk.Profile;
-import cscie97.asn2.squaredesk.provider.ProviderServiceImpl;
 
 public class Importer
 {

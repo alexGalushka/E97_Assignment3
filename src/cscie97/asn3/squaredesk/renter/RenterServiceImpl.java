@@ -42,14 +42,14 @@ public class RenterServiceImpl implements RenterService
     /**
      * this method books the OfficeSpace based on the returned search of the criteria renter has 
      * @param authToken
-     * @param renter
+     * @param uutRenter
      * @throws BookingException 
      */
-    public Boolean bookOfficeSpace ( String authToken, Renter renter, Rate rate, PaymentStatus paymentStatus ) throws BookingException
+    public Boolean bookOfficeSpace ( String authToken, Profile uutRenter, Rate rate, PaymentStatus paymentStatus ) throws BookingException
     {
     	boolean result = false;
     	OfficeSpace officespace = null;
-    	Criteria criteria = renter.getCriteria();
+    	Criteria criteria = uutRenter.getCriteria();
     	List<OfficeSpace> officeSpacesList;
     	officeSpacesList = searchEngine.SearchForOfficeSpace ( criteria );
         if ( officeSpacesList != null)
@@ -59,8 +59,8 @@ public class RenterServiceImpl implements RenterService
 	        	//pick the first one available
 	        	officespace =  officeSpacesList.get(0);
 	            // daily period by default
-	            Booking booking = new Booking ( renter, officespace, rate,
-	     		       renter.getCriteria().getStartDate(), renter.getCriteria().getEndDate(), paymentStatus, "daily" );
+	            Booking booking = new Booking ( uutRenter, officespace, rate,
+	     		       uutRenter.getCriteria().getStartDate(), uutRenter.getCriteria().getEndDate(), paymentStatus, "daily" );
 	            
 	            result = schedService.createBooking( booking );
         	}
@@ -321,6 +321,13 @@ public class RenterServiceImpl implements RenterService
 		{
 			throw new OfficeSpaceNotFoundException();
 		}
+	}
+
+	@Override
+	public Boolean bookOfficeSpace(String authToken, Renter renter, Rate rate,
+			PaymentStatus paymentStatus) throws BookingException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

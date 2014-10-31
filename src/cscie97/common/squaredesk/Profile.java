@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import cscie97.asn2.squaredesk.provider.OfficeSpace;
+import cscie97.asn3.squaredesk.renter.Criteria;
 import cscie97.common.squaredesk.Rating;
 
 public interface Profile
@@ -96,4 +97,10 @@ public interface Profile
 	 * @param account the account to set
 	 */
 	public void setAccount(Account account);
+
+	public void setCriteria(Criteria uutCriteria);
+
+	public void setGender(Gender female);
+
+	public Criteria getCriteria();
 }

@@ -9,8 +9,11 @@ import java.util.Map;
 
 
 
+
+import cscie97.asn3.squaredesk.renter.Criteria;
 import cscie97.common.squaredesk.Account;
 import cscie97.common.squaredesk.ContactInfo;
+import cscie97.common.squaredesk.Gender;
 import cscie97.common.squaredesk.Profile;
 import cscie97.common.squaredesk.Rating;
 
@@ -220,6 +223,26 @@ public class Provider implements Profile
 	public void addOfficeSpacesIdToList( String officeSpacesId )
 	{
 		this.officeSpacesIds.add( officeSpacesId );
+	}
+
+	@Override
+	public void setCriteria(Criteria uutCriteria)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setGender(Gender female)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Criteria getCriteria() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
